@@ -165,7 +165,7 @@ Intro to Software Engineering · ปีการศึกษา 2569 · Mileston
 | 2 | **Takkan Khanlui** | **6931503035** | **V31311** | **System Designer** | **Use Case · Sequence · State Machine · ERD · Architecture (docs/03-design/architecture.md)** |
 | 3 | **Rossatorn Sangkaew** | **6931503066** | **IDK-SleepyBro** | **UX/UI Designer** | **Design tokens · Screen map · Wireframe ทุกหน้า · Demo slides (docs/03-design/design-system.md, docs/06-presentation/)** |
 | 4 | **Nichanan Lalua** | **6931503049** | **KaidangSuk** | **Prototype Developer** | **Prototype คลิกได้ Increment 1–2 · วิธีเปิดใน README (prototype/)** |
-| 5 | **[ ]** | **[ ]** | **[ ]** | **QA / Tester** | **Test plan จาก AC · Automated test · ทดสอบกับผู้ใช้ · ผลทดสอบ (เขียนใน Final Report §6)** |
+| 5 | **Suchitra Khomdee** | **[ ]** | **Khaiwann** | **QA / Tester** | **Test plan จาก AC · Automated test · ทดสอบกับผู้ใช้ · ผลทดสอบ (เขียนใน Final Report §6)** |
 
 ### กติกาการทำงานร่วมกัน
 - ติดตามงานผ่าน **GitHub Issues** — ทุกงานมี issue และมีผู้รับผิดชอบ 1 คน
@@ -184,4 +184,4 @@ Intro to Software Engineering · ปีการศึกษา 2569 · Mileston
 | Takkan Khanlui | **9/10/69** |
 | Rossatorn Sangkaew | **9/10/60** |
 | Nichanan Lalua | **9/10/69** |
-| **[ ]** | **9/10/69** |
+| Suchitra Khomdee | **9/10/69** |
