@@ -4,7 +4,7 @@
 |---|---|
 | Team name | **[ ]** |
 | Project title | **[ชื่อโปรเจกต์]** — ระบบเตือนกินยาและแจ้งสถานะการกินยาให้ผู้ดูแลผู้สูงอายุ |
-| SDLC chosen in M1 + reason | **[ทีมเลือก — ดู Charter §8]** |
+| SDLC chosen in M1 + reason | Incremental (AI-Assisted) — สร้างวงจร เตือน → ยืนยัน → แจ้งผู้ดูแล (FR-03–05) ก่อน แล้วจึงเพิ่มจับคู่ + OCR (FR-01, FR-02) · ดู Charter §8 |
 | Date / version | v2.0 (ร่าง) · **[วันที่ส่ง]** — แทนที่ฉบับเดิมทั้งหมด |
 | GitHub repo | **[ ]** |
 
