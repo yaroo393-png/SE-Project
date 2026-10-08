@@ -1,3 +1,7 @@
+# Spike (ไม่ใช่ส่วนของระบบที่ส่ง และไม่ใช่ automated test):
+# ทดลองให้ AI (Gemini) อ่านฉลากยาจากรูป เพื่อดูว่า FR-02 ทำได้จริงไหม และใช้จับเวลาวัด NFR-08
+# วิธีรัน: GEMINI_API_KEY=... python docs/04-testing/test.py ไฟล์รูป.jpg
+# ข้อควรรู้: ยังมี bug ที่ต้องแก้ก่อนใช้อ้างอิง — hard-code คำเตือน, retry ไม่รอ
 import json
 import mimetypes
 import os
