@@ -76,7 +76,8 @@ docs/
 │   ├── architecture.md       # M2: Architecture, Use Case/Sequence/State, ERD, Module & Event
 │   └── design-system.md      # M2: Design tokens, Screen Map (หน้าจอ ↔ FR), error/empty states
 ├── 04-testing/
-│   └── test-report.md        # Test plan, test cases จาก AC, ผลรันจริง
+│   ├── test-report.md        # Test plan, test cases จาก AC, ผลรันจริง
+│   └── test.py               # Spike: อ่านฉลากยาด้วย Gemini (FR-02) — ไม่ใช่ automated test ของระบบ
 ├── 05-report/
 │   ├── final-report.md       # M3: Final Report + Golden Thread table
 │   └── ai-use-statement.md   # M3: บันทึกการใช้ AI ตามจริง
