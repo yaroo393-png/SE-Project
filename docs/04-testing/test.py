@@ -55,7 +55,7 @@ def guess_mime_type(path: Path) -> str:
 
 def main():
     if len(sys.argv) != 2:
-        sys.exit("วิธีใช้: python test.py ไฟล์รูป.jpg")
+        sys.exit("วิธีใช้: python docs/04-testing/test.py ไฟล์รูป.jpg")
 
     image_path = Path(sys.argv[1])
 
