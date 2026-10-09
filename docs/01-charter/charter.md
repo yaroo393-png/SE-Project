@@ -183,6 +183,6 @@ Intro to Software Engineering · ปีการศึกษา 2569 · Mileston
 |---|---|
 | YAR OO | **8/10/69** |
 | Takkan Khanlui | **9/10/69** |
-| Rossatorn Sangkaew | **9/10/60** |
+| Rossatorn Sangkaew | **9/10/69** |
 | Nichanan Lalua | **9/10/69** |
 | Suchitra Khomdee | **9/10/69** |
