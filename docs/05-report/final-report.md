@@ -91,6 +91,8 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 หลัง T+15 → ยืนยันช้าได้จนถึงเวลาเตือนของมื้อถัดไป
 ```
 
+**ข้อจำกัด:** ระบบเป็นเว็บแอป — MVP เตือน Senior และแจ้ง Caregiver เฉพาะขณะหน้าเว็บเปิดค้างไว้; เสียงเตือนเล่นได้หลังผู้ใช้แตะหน้าเว็บครั้งแรก (`spec.md` §2.2)
+
 ### Non-functional requirements (`spec.md` §4)
 
 | ID | ประเภท | เป้าหมาย (วัดได้) |
@@ -143,7 +145,7 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 | สมาชิก | งานที่รับผิดชอบ | Issue | หลักฐาน |
 |---|---|---|---|
-| YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | #22, #23, #27, #28, #30, #31 | Charter/SRS/Backlog (PR #1–#4, #8–#21 · บางส่วนร่างด้วย AI ดู §7), `b390fac`, `6d84a27`, `1fb8925`, `430bf68`, `d99fd5d` |
+| YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | #22, #23, #27, #28, #30, #31 | Charter/SRS/Backlog (PR #1–#6, #8–#21, #33 · บางส่วนร่างด้วย AI ดู §7), `b390fac`, `6d84a27`, `1fb8925`, `430bf68`, `d99fd5d` |
 | Takkan Khanlui | Architecture, Use Case, Sequence, State Machine, ERD | #24 | **[ใส่ commit เมื่อมี]** |
 | Rossatorn Sangkaew | Design tokens, Screen Map, Error/empty states, CSS ของ prototype, Demo Slides | #25 | **[ใส่ commit เมื่อมี]** |
 | Nichanan Lalua | Prototype Increment 1–2, ข้อมูลสมาชิกใน Charter §9 | #26 | ข้อมูลสมาชิกใน Charter §9 (9 ต.ค.) · prototype **[ใส่ commit เมื่อมี]** |
