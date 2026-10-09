@@ -22,7 +22,7 @@
 | Takkan Khanlui | 6931503035 | V31311 | System Designer |
 | Rossatorn Sangkaew | 6931503066 | IDK-SleepyBro | UX/UI Designer |
 | Nichanan Lalua | 6931503049 | KaidangSuk | Prototype Developer |
-| Suchitra Khomdee | 6931503079 | khaiwann | QA / Tester |
+| Suchitra Khomdee | 6931503079 | Khaiwann | QA / Tester |
 
 ---
 
