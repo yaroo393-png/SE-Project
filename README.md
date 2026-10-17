@@ -17,9 +17,9 @@
 |---|---|
 | M1 Charter | ฉบับปรับปรุง (ข้อมูลสมาชิกกรอกแล้ว · กำหนดเสร็จ Increment ใน §8 ใส่แล้ว) |
 | M2 SRS / Requirements | SRS v2.0 ร่างแล้ว (`spec.md`): FR-01..08 (Must 5 · Should 1 · Could 2), BR-01..17, AC, NFR-01..10, Use case, Traceability — ยังรอ: Use-case diagram, แถวว่างใน AI log (§8) |
-| M2 Design | ยังไม่เริ่ม |
-| M3 Prototype | ยังไม่เริ่ม |
-| Automated tests | ยังไม่มี — **ไม่มีผลทดสอบที่รายงานไว้ล่วงหน้า** |
+| M2 Design | โครง: `architecture.md` (มีแค่ตาราง Module & Event), `design-system.md` (หัวข้อ), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#24), Screen Map (#25) |
+| M3 Prototype | บางส่วน: หน้าเว็บ `prototype/MedMind-Responsive/` (Today, Medicines, Caregiver, History, Settings) + ตรรกะ `prototype/js/logic/` (FR-03, FR-04, FR-05 บางข้อ) — ยังรอ: FR-01 จับคู่ QR, FR-02 สแกนฉลาก, ปุ่ม "ยังไม่กิน", แจ้ง T+15, ป้าย "Covers: FR-x", ต่อหน้าเว็บเข้ากับตรรกะ (#26) |
+| Automated tests | `prototype/tests/reminder.confirm.test.js`: 23 เทสต์ (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) — ผ่าน 23/23 (รัน 17 ต.ค. 2569, Node 22) · ยังไม่มีเทสต์ FR-01, FR-02 และยังไม่ทดสอบกับผู้ใช้ (#29) |
 | Final Report / AI-Use Statement | ร่างแล้ว: Report §1–3, §7–10 (§8–9 บางส่วน) · AI-Use Statement สรุปจาก `spec.md` §8 — ยังรอ: §4 Design, §5 Prototype, §6 ผลทดสอบ |
 
 > README นี้จะอัปเดตเมื่อมีผลจริง ช่อง **[ ]** = ยังไม่มีข้อมูลจริง ไม่เดา
@@ -82,26 +82,33 @@ docs/
 │   └── ai-use-statement.md   # M3: บันทึกการใช้ AI ตามจริง (ร่าง — สรุปจาก spec.md §8)
 ├── 06-presentation/
 │   └── demo-slides.md        # M3: โครง Demo (Problem → Solution) (โครง)
-prototype/                    # Clickable prototype + tests (ยังไม่มี — มีแค่ README)
+prototype/
+├── MedMind-Responsive/       # หน้าเว็บ demo (index.html, styles.css, app.js) — ยังไม่ครบ FR-01..05
+├── js/logic/
+│   ├── reminder.js           # ตรรกะเวลาเตือน (FR-03, BR-06)
+│   └── confirm.js            # ตรรกะยืนยัน + แจ้ง Caregiver + สถานะรายวัน (FR-04, FR-05)
+└── tests/
+    └── reminder.confirm.test.js  # automated test ของ js/logic/
 ```
 
 ---
 
 ## 🚀 วิธีการเปิดใช้งาน Prototype และการรันระบบ (Quick Start)
 
-> **ยังไม่มี prototype** — ส่วนนี้จะเขียนเมื่อ prototype เสร็จและทดสอบแล้ว
+> **Prototype ยังไม่ครบ** — หน้าเว็บมีแล้วแต่ยังไม่ครบ FR-01..05 และยังไม่ได้ใช้ตรรกะใน `js/logic/` (ดูสถานะด้านบน)
 
 ### 1. วิธีเปิดดู Prototype ในเว็บเบราว์เซอร์ (Clickable Prototype)
 Prototype เป็น HTML/CSS/JS เปิดในเบราว์เซอร์ได้โดยตรง **ไม่ต้องมี server หรือฐานข้อมูล** (ข้อมูลเป็นข้อมูลจำลอง; การแจ้งเตือนและเวลาเป็นการจำลอง)
 
 1. เปิดผ่านลิงก์ GitHub Pages: **[ลิงก์ เมื่อมี]**
-2. หรือดาวน์โหลด repo แล้วเปิดไฟล์ **[`prototype/index.html`]** ด้วยเบราว์เซอร์
+2. หรือดาวน์โหลด repo แล้วเปิดไฟล์ [`prototype/MedMind-Responsive/index.html`](prototype/MedMind-Responsive/index.html) ด้วยเบราว์เซอร์
 
 ### 2. วิธีรันชุดทดสอบอัตโนมัติ (Automated Tests)
+ต้องมี Node.js 18 ขึ้นไป (ไม่ต้อง `npm install`) — รันจากโฟลเดอร์บนสุดของ repo:
 ```bash
-# [คำสั่ง เมื่อ test เสร็จ]
+node --test prototype/tests/reminder.confirm.test.js
 ```
-ผลลัพธ์: **[ใส่ผลจริงหลังรัน — ห้ามใส่ล่วงหน้า]**
+ผลลัพธ์ (รัน 17 ต.ค. 2569, Node 22): **ผ่าน 23 / ไม่ผ่าน 0** — ครอบคลุม BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ
 
 ---
 

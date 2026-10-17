@@ -2,10 +2,17 @@
 
 Clickable prototype (HTML/CSS/JS) เปิดในเบราว์เซอร์ ไม่ต้องมี server / DB
 
-> สถานะ: **ยังไม่มี prototype** — โฟลเดอร์ด้านล่างเป็นโครงที่วางแผนไว้ จะสร้างเมื่อเริ่ม Increment 1
+> สถานะ: **บางส่วน** — หน้าเว็บยังไม่ครบ FR-01..05 และยังไม่ได้เรียกใช้ตรรกะใน `js/logic/` (#26)
 
-โครงที่วางแผนไว้:
-- `src/` — หน้าจอและตรรกะ (ทุกหน้ากำกับ "Covers: FR-x")
-- `tests/` — automated test ของตรรกะหลัก
+โครงไฟล์:
+- `MedMind-Responsive/` — หน้าเว็บ demo (`index.html`, `styles.css`, `app.js`) ดูรายละเอียดใน [`MedMind-Responsive/README.md`](MedMind-Responsive/README.md)
+- `js/logic/` — ตรรกะหลัก ไม่แตะ DOM: `reminder.js` (FR-03, BR-06), `confirm.js` (FR-04, FR-05) — ในเบราว์เซอร์ต้องโหลด `reminder.js` ก่อน `confirm.js`
+- `tests/` — automated test ของ `js/logic/`
 
-วิธีเปิด: **[เขียนเมื่อ prototype เสร็จ]**
+วิธีเปิด: เปิดไฟล์ `MedMind-Responsive/index.html` ด้วยเบราว์เซอร์
+
+วิธีรันเทสต์ (Node.js 18 ขึ้นไป, รันจากโฟลเดอร์บนสุดของ repo):
+```bash
+node --test prototype/tests/reminder.confirm.test.js
+```
+ผลล่าสุด (17 ต.ค. 2569, Node 22): ผ่าน 23 / ไม่ผ่าน 0
