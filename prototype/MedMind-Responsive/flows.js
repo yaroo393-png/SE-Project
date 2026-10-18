@@ -174,6 +174,9 @@ function flowTryPair() {
   invite.used = true;
   invite.paired = true;
   flowSaveInvite(invite);
+  state.medicines = readMedicines();
+  state.taken = readTodayDoses();
+  state.takenDate = localDateKey();
   state.page = 'caregiverHome';
   render();
   if (typeof toast === 'function') toast(flowText('connected'));

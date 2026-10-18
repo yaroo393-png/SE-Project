@@ -5,7 +5,7 @@ Open [index.html](index.html) for the senior view or [caregiver.html](caregiver.
 ## Included flows
 
 - Thai/English, light/dark appearance, and text-size controls.
-- FR-01 pairing demo: a locally generated QR code and random 6-digit invitation code, 10-minute expiry, one-time use, senior consent, caregiver camera scan when supported, and manual code entry.
+- FR-01 pairing demo: the caregiver view stays on the invitation screen until a valid 6-digit code is entered and the senior has consented; patient schedule and status appear only after a successful pairing. The demo includes a local QR code, random code, expiry, one-time use, camera scan when supported, and manual code entry.
 - FR-02 medicine-label capture: use a phone camera or choose a label photo, review the photo, and enter/correct medicine details before saving them to the schedule. OCR is not connected; the prototype never guesses medicine instructions.
 - Caregivers use one “Add medicine” flow to enter details manually or optionally attach a label photo, then save; they can remove medicines. The senior view is read-only for medicine management.
 - Medicine rows in the schedule are generated from the saved demo medicine list.
