@@ -262,11 +262,6 @@ function flowResetPhoto() {
   if (note) note.hidden = true;
 }
 
-function flowStartMedicineScan() {
-  openModal();
-  const input = document.getElementById('medicine-photo-input');
-  if (input) input.click();
-}
 
 function flowSetup() {
   const syncFlowCopy = () => {
