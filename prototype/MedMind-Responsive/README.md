@@ -1,14 +1,17 @@
 # MedMind responsive website demo
 
-Open [index.html](index.html) for the patient view or [caregiver.html](caregiver.html) for the caregiver view. Both use the same responsive layout, adapting from desktop side navigation to mobile bottom navigation.
+Open [index.html](index.html) for the senior view or [caregiver.html](caregiver.html) for the caregiver view. Both pages share the responsive layout and interaction code; navigation adapts from a desktop sidebar to a mobile bottom bar.
 
-To use the interactive demo, open the files locally or serve this folder from a static web host. GitHub's source-file preview displays the code and does not run the website.
+## Included flows
 
-## Interactive parts
+- Thai/English, light/dark appearance, and text-size controls.
+- FR-01 pairing demo: a locally generated QR code and random 6-digit invitation code, 10-minute expiry, one-time use, senior consent, caregiver camera scan when supported, and manual code entry.
+- FR-02 medicine-label capture: use a phone camera or choose a label photo, review the photo, and enter/correct medicine details before saving them to the schedule. OCR is not connected; the prototype never guesses medicine instructions.
+- Caregivers can add, remove, and scan medicines. The senior view is read-only for medicine management.
+- Medicine rows in the schedule are generated from the saved demo medicine list.
 
-- Navigate between Today, Medicines, Caregiver, History, and Settings.
-- Confirm the example dose and see the summary update.
-- Add, search, and remove example medicine entries.
-- Switch Thai/English, light/dark appearance, text size, and reminder preference.
+## Prototype limits
 
-This is a front-end demo with fictional sample content. It has no server or medical-record integration. Changes are stored in this browser's local storage. Caregiver call buttons display a demo notice and do not place a call.
+This is a front-end demo with fictional sample content and no server or medical-record integration. Pairing is stored in this browser only, so it does not sync between separate devices. Invitation codes and medicine entries are local demo data. QR camera scanning needs browser camera support and a secure context such as HTTPS or localhost; manual code entry remains available. The camera/photo picker attaches a label image for review, but does not perform real OCR. Caregiver call buttons show a demo notice and do not place a call. Dose reminders and notifications are not delivered when the page is closed.
+
+For the interactive camera flows, open the files from a local web server or a static HTTPS host. GitHub's source-file preview only displays code and does not run the website.

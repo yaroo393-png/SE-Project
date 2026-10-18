@@ -25,6 +25,7 @@
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
     <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v11H3V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
   </svg>
   <div class="app-shell">
     <aside class="sidebar" aria-label="เมนูหลัก">
@@ -64,6 +65,7 @@
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <header class="modal-header"><div><span class="eyebrow" data-copy="medication">รายการยา</span><h2 id="modal-title" data-copy="addMed">เพิ่มรายการยา</h2></div><button class="icon-button" id="close-modal" aria-label="ปิด"><svg class="icon"><use href="#i-close"/></svg></button></header>
       <form id="medicine-form">
+        <div class="photo-capture-block"><input id="medicine-photo-input" type="file" accept="image/*" capture="environment" hidden><button class="secondary-button" type="button" id="capture-medicine-photo"><svg class="icon"><use href="#i-camera"/></svg><span>ถ่ายภาพฉลากยา</span></button><img id="medicine-photo-preview" class="medicine-photo-preview" alt="ภาพฉลากยาที่เลือก" hidden><p id="medicine-photo-note" class="scan-note" role="status" hidden></p></div>
         <label><span data-copy="medName">ชื่อยา</span><input name="name" placeholder="เช่น ยาความดัน" required></label>
         <div class="form-row"><label><span data-copy="dose">ขนาดยา</span><input name="dose" placeholder="เช่น 1 เม็ด" required></label><label><span data-copy="time">เวลา</span><input name="time" type="time" value="18:00" required></label></div>
         <label><span data-copy="instruction">คำแนะนำ</span><select name="instruction"><option value="after" data-copy="after">หลังอาหาร</option><option value="before" data-copy="before">ก่อนอาหาร</option><option value="any" data-copy="asDirected">ตามแพทย์สั่ง</option></select></label>
@@ -71,6 +73,7 @@
       </form>
     </section>
   </div>
+  <script src="flows.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
