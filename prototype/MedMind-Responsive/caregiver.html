@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f2">
+  <title>MedMind — ผู้ดูแล</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-role="caregiver">
+  <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-pill" viewBox="0 0 24 24"><path d="M10.5 3.5a6 6 0 0 1 8.5 8.5l-7 7a6 6 0 0 1-8.5-8.5zM8 8l8 8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V5m0 14h17M8 15l4-4 3 2 5-6"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1 1.1.9-1.3 2.3-1.4-.5a8 8 0 0 1-1.7 1l-.3 1.5h-2.6l-.3-1.5a8 8 0 0 1-1.7-1l-1.4.5-1.3-2.3 1.1-.9a8 8 0 0 1 0-2l-1.1-.9 1.3-2.3 1.4.5a8 8 0 0 1 1.7-1l.3-1.5h2.6l.3 1.5a8 8 0 0 1 1.7 1l1.4-.5 1.3 2.3-1.1.9a8 8 0 0 1 0 2Z" transform="translate(-1 -1)"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.7 8.7 0 1 0 20.5 15.2Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.1-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.8A4.8 4.8 0 0 1 12 6a4.8 4.8 0 0 1 8.8 2.8Z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.6 1.4c-.8 1.1-2.2 1.3-2.2 3m0 3h.01"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></symbol>
+  </svg>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="เมนูหลัก">
+      <a class="brand" href="#today" aria-label="MedMind หน้าภาพรวม">
+        <span class="brand-mark"><span></span></span>
+        <span><strong>MedMind</strong><small data-copy="tagline">ดูแลมื้อยาอย่างอุ่นใจ</small></span>
+      </a>
+      <div class="nav-label" data-copy="menu">เมนู</div>
+      <nav class="main-nav" id="side-nav"></nav>
+      <div class="nav-label account-label" data-copy="account">บัญชีของฉัน</div>
+      <button class="nav-link" data-page="settings"><svg class="icon"><use href="#i-settings"/></svg><span data-copy="settings">ตั้งค่า</span></button>
+      <div class="help-card">
+        <span class="help-icon"><svg class="icon"><use href="#i-help"/></svg></span>
+        <div><strong data-copy="needHelp">ต้องการความช่วยเหลือ?</strong><span data-copy="helpText">ติดต่อผู้ดูแลได้ทันที</span><button class="text-link" data-page="caregiver"><span data-copy="seeCaregiver">ดูผู้ดูแล</span><svg class="icon"><use href="#i-arrow"/></svg></button></div>
+      </div>
+      <div class="profile-mini"><span class="avatar">ส</span><span><strong data-copy="patientName">คุณสมพร</strong><small data-copy="patientRole">ผู้ใช้และเจ้าของบัญชี</small></span><span class="online-dot" aria-label="ออนไลน์"></span></div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark"><span></span></span><strong>MedMind</strong></div>
+        <div class="top-context"><span class="today-date" id="today-date"></span><span class="context-dot">·</span><span data-copy="safeCare">พื้นที่ดูแลของฉัน</span></div>
+        <div class="top-actions">
+          <button class="icon-button notification-button" id="reminder-toggle" aria-label="เปิดหรือปิดเสียงเตือน" title="เสียงเตือน"><svg class="icon"><use href="#i-bell"/></svg><span class="notification-dot"></span></button>
+          <button class="icon-button" id="theme-toggle" aria-label="สลับโหมดสว่างและมืด" title="สลับโหมด"><svg class="icon"><use href="#i-moon"/></svg></button>
+          <button class="language-button" id="language-toggle" aria-label="เปลี่ยนภาษา"><span>TH</span><span class="language-chevron">⌄</span></button>
+          <button class="avatar-button" data-page="caregiver" aria-label="ข้อมูลผู้ดูแล">ส</button>
+        </div>
+      </header>
+      <div class="mobile-context" id="mobile-context"></div>
+      <div class="content" id="view" tabindex="-1"></div>
+    </main>
+    <nav class="bottom-nav" id="bottom-nav" aria-label="เมนูหลักบนมือถือ"></nav>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop" id="modal-backdrop" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-header"><div><span class="eyebrow" data-copy="medication">รายการยา</span><h2 id="modal-title" data-copy="addMed">เพิ่มรายการยา</h2></div><button class="icon-button" id="close-modal" aria-label="ปิด"><svg class="icon"><use href="#i-close"/></svg></button></header>
+      <form id="medicine-form">
+        <label><span data-copy="medName">ชื่อยา</span><input name="name" placeholder="เช่น ยาความดัน" required></label>
+        <div class="form-row"><label><span data-copy="dose">ขนาดยา</span><input name="dose" placeholder="เช่น 1 เม็ด" required></label><label><span data-copy="time">เวลา</span><input name="time" type="time" value="18:00" required></label></div>
+        <label><span data-copy="instruction">คำแนะนำ</span><select name="instruction"><option value="after" data-copy="after">หลังอาหาร</option><option value="before" data-copy="before">ก่อนอาหาร</option><option value="any" data-copy="asDirected">ตามแพทย์สั่ง</option></select></label>
+        <button class="primary-button full-button" type="submit"><svg class="icon"><use href="#i-check"/></svg><span data-copy="saveMed">บันทึกรายการยา</span></button>
+      </form>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

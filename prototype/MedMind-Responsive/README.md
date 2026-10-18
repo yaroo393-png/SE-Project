@@ -1,6 +1,8 @@
 # MedMind responsive website demo
 
-Open `index.html` in a browser. The same page layout adapts to wide desktop, tablet, and mobile widths: desktop uses a side navigation; mobile uses a bottom navigation while keeping the same sections and content.
+Open [index.html](index.html) for the patient view or [caregiver.html](caregiver.html) for the caregiver view. Both use the same responsive layout, adapting from desktop side navigation to mobile bottom navigation.
+
+To use the interactive demo, open the files locally or serve this folder from a static web host. GitHub's source-file preview displays the code and does not run the website.
 
 ## Interactive parts
 
