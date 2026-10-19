@@ -1,0 +1,36 @@
+{
+  // เมนู Terminal → Run Task… (หรือ Ctrl+Shift+P → "Tasks: Run Task")
+  // Ctrl+Shift+B = ตรวจทั้งหมดก่อน push · "Tasks: Run Test Task" = รันเทสต์
+  // Windows ใช้ npm.cmd เพราะ PowerShell อาจไม่ยอมรัน npm.ps1
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ทดสอบ (npm test)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["test"],
+      "windows": { "command": "npm.cmd" },
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "clear": true }
+    },
+    {
+      "label": "ติดตั้ง (npm install — ครั้งแรกครั้งเดียว)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "windows": { "command": "npm.cmd" },
+      "problemMatcher": []
+    },
+    {
+      "label": "ตรวจทั้งหมดก่อน push (npm run check)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "check"],
+      "windows": { "command": "npm.cmd" },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$eslint-stylish"],
+      "presentation": { "reveal": "always", "clear": true }
+    }
+  ]
+}

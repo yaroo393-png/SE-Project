@@ -1,0 +1,10 @@
+{
+  // VS Code จะชวนติดตั้งส่วนขยายเหล่านี้เมื่อเปิดโฟลเดอร์โปรเจกต์ครั้งแรก
+  "recommendations": [
+    "anthropic.claude-code",
+    "dbaeumer.vscode-eslint",
+    "github.vscode-pull-request-github",
+    "github.vscode-github-actions",
+    "ms-vsliveshare.vsliveshare"
+  ]
+}

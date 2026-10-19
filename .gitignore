@@ -141,3 +141,13 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# MedMind — ตั้งค่า VS Code ที่ใช้ร่วมกันทั้งทีม (การตั้งค่าส่วนตัวไม่ขึ้น repo)
+.vscode/*
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# MedMind — รูปฉลากยาจริง (มีชื่อ/HN ผู้ป่วย) เก็บทดสอบในเครื่องเท่านั้น (RULES.md §3)
+private/
+*.private.jpg
+*.private.png
