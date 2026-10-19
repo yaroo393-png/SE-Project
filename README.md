@@ -95,18 +95,18 @@ prototype/
 │   │   ├── confirm.js        # ยืนยัน + แจ้ง Caregiver + สถานะรายวัน (FR-04, FR-05) — Nichanan
 │   │   ├── labelParser.js    # ข้อความจากฉลาก → ร่างข้อมูลยา (FR-02, BR-04, BR-07, NFR-09) — YAR OO
 │   │   ├── labelForm.js      # ร่าง → ค่าในฟอร์มเพิ่มยา + เวลาเตือนจากเวลามื้อ (FR-02, BR-06) — YAR OO
-│   │   ├── ⏳ pairing.js      # รหัสเชิญ / ยินยอม / ยกเลิก (FR-01) — Takkan
-│   │   ├── ⏳ medication.js   # ตรวจฟอร์มยา + เวลามื้อ (FR-02, BR-03–07) — Rossatorn
-│   │   └── ⏳ status.js       # สถานะรายวัน + ข้อความถึงผู้ดูแล (FR-05) — Suchitra
+│   │   ├── pairing.js      # รหัสเชิญ / ยินยอม / ยกเลิก (FR-01) — Takkan
+│   │   ├── medication.js   # ตรวจฟอร์มยา + เวลามื้อ (FR-02, BR-03–07) — Rossatorn
+│   │   └── status.js       # สถานะรายวัน + ข้อความถึงผู้ดูแล (FR-05) — Suchitra
 │   ├── services/
 │   │   └── scanner.js        # อ่านตัวหนังสือจากรูปในเบราว์เซอร์ (Tesseract.js) — YAR OO
 │   └── features/             # การทำงานบนหน้าจอของแต่ละฟีเจอร์
 │       ├── scan.js           # สแกนฉลาก → เติมฟอร์มเพิ่มยา (FR-02) — YAR OO
-│       └── ⏳ <ฟีเจอร์>.js     # pairing (Takkan) · medicine (Rossatorn) · reminder (Nichanan) · caregiverStatus (Suchitra)
+│       └── <ฟีเจอร์>.js     # pairing (Takkan) · medicine (Rossatorn) · reminder (Nichanan) · caregiverStatus (Suchitra)
 └── tests/                    # npm test — ชื่อไฟล์ตามไฟล์ใน js/logic/ และ js/core/
     ├── reminder.confirm.test.js
     ├── labelParser.test.js, labelForm.test.js, store.test.js
-    └── ⏳ <ฟีเจอร์>.test.js
+    └── <ฟีเจอร์>.test.js
 .github/
 ├── workflows/ci.yml          # CI ทุก push / PR: unit test + ESLint + ตรวจความลับ
 └── pull_request_template.md  # ช่อง Golden Thread + checklist ก่อนขอรีวิว
