@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#f5f7f2">
   <title>MedMind — ผู้ดูแล</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../css/scan.css">
 </head>
 <body data-role="caregiver">
   <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -75,5 +76,12 @@
   </div>
   <script src="flows.js"></script>
   <script src="app.js"></script>
+  <!-- FR-02 สแกนฉลากยา (YAR OO): อ่านฉลากในเบราว์เซอร์แล้วเติมฟอร์มเพิ่มยา — ลำดับ: logic → core → services → features -->
+  <script src="../js/logic/reminder.js"></script>
+  <script src="../js/logic/labelParser.js"></script>
+  <script src="../js/logic/labelForm.js"></script>
+  <script src="../js/core/store.js"></script>
+  <script src="../js/services/scanner.js"></script>
+  <script src="../js/features/scan.js"></script>
 </body>
 </html>

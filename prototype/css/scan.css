@@ -1,0 +1,24 @@
+/*
+ * scan.css — กล่องผลสแกนฉลากในฟอร์มเพิ่มยา (FR-02) · ผู้รับผิดชอบ: YAR OO
+ * ใช้ตัวแปรสีของหน้า demo (styles.css) · ข้อความสถานะ contrast ≥ 4.5:1 ทั้งโหมดสว่างและมืด (NFR-03)
+ */
+.scan-panel { display: grid; gap: 10px; }
+.scan-progress { height: 10px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.scan-progress > div { height: 100%; width: 0; background: var(--green); transition: width .2s; }
+.scan-status { margin: 0; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+.scan-status.info { background: #e8f0fb; color: #1f4a85; }
+.scan-status.ok { background: #e3f3e8; color: #17603f; }
+.scan-status.warn { background: #fff1e3; color: #8a4a1f; }
+.scan-status.danger { background: #fdecea; color: #a3261d; }
+.scan-sample-label select { min-height: 44px; }
+#medicine-form .needs-review { border-color: #a3261d !important; box-shadow: 0 0 0 2px rgba(163, 38, 29, .25); }
+
+body[data-theme="dark"] .scan-status.info { background: #182a40; color: #a9c8f5; }
+body[data-theme="dark"] .scan-status.ok { background: #173a29; color: #7fd9a4; }
+body[data-theme="dark"] .scan-status.warn { background: #3a2717; color: #f3b98a; }
+body[data-theme="dark"] .scan-status.danger { background: #3d1a17; color: #ff9b91; }
+body[data-theme="dark"] #medicine-form .needs-review { border-color: #ff9b91 !important; box-shadow: 0 0 0 2px rgba(255, 155, 145, .3); }
+
+/* ฟอร์มเพิ่มยายาวกว่าจอเมื่อมีรูปฉลาก + ผลสแกน → ให้กล่องเลื่อนได้ ปุ่ม "บันทึก" จะไม่หลุดจอบนมือถือ
+   (ควรย้ายไปไว้ใน styles.css ของหน้า demo — แจ้ง Rossatorn แล้ว) */
+.modal-backdrop .modal { max-height: calc(100vh - 36px); max-height: calc(100dvh - 36px); overflow-y: auto; }

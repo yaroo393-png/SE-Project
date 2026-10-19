@@ -1,18 +1,33 @@
 # Prototype — MedMind
 
-Clickable prototype (HTML/CSS/JS) เปิดในเบราว์เซอร์ ไม่ต้องมี server / DB
+Clickable prototype (HTML/CSS/JS) เปิดในเบราว์เซอร์ **ไม่ต้องมี server / ฐานข้อมูล** — ข้อมูลอยู่ใน `localStorage` ของเบราว์เซอร์
 
-> สถานะ: **บางส่วน** — หน้าเว็บยังไม่ครบ FR-01..05 และยังไม่ได้เรียกใช้ตรรกะใน `js/logic/` (#26)
+> สถานะ: **บางส่วน** — ยังไม่ครบ AC ของ FR-01..05 และหน้าเว็บยังไม่ได้เรียกใช้ `js/logic/reminder.js` / `confirm.js` (#26) · สแกนฉลาก (FR-02) ใช้ได้แล้วในหน้าผู้ดูแล
 
-โครงไฟล์:
-- `MedMind-Responsive/` — หน้าเว็บ demo (`index.html`, `styles.css`, `app.js`) ดูรายละเอียดใน [`MedMind-Responsive/README.md`](MedMind-Responsive/README.md)
-- `js/logic/` — ตรรกะหลัก ไม่แตะ DOM: `reminder.js` (FR-03, BR-06), `confirm.js` (FR-04, FR-05) — ในเบราว์เซอร์ต้องโหลด `reminder.js` ก่อน `confirm.js`
-- `tests/` — automated test ของ `js/logic/`
+## วิธีเปิด
+1. ผู้สูงอายุ: เปิด [`MedMind-Responsive/index.html`](MedMind-Responsive/index.html)
+2. ผู้ดูแล: เปิด [`MedMind-Responsive/caregiver.html`](MedMind-Responsive/caregiver.html) — เปิดคนละแท็บในเบราว์เซอร์เดียวกัน = จำลองมือถือ 2 เครื่อง
+3. สแกนฉลาก (FR-02): หน้าผู้ดูแล → **ยา** → **เพิ่มรายการยา** → ถ่ายภาพ/เลือกรูปฉลาก หรือเลือก **ฉลากตัวอย่าง**
+   - ระบบอ่านรูปในเบราว์เซอร์แล้วเติมชื่อยา ขนาด เวลา และคำแนะนำให้ — **ยังไม่บันทึกจนผู้ดูแลตรวจแล้วกดบันทึกเอง**
+   - ช่องที่อ่านไม่ได้จะว่างและขึ้นกรอบแดง "กรุณาตรวจสอบ" (ระบบไม่เดา) · ยาเมื่อมีอาการ / ยาน้ำ / ครึ่งเม็ด บันทึกไม่ได้
+   - ครั้งแรกต้องต่ออินเทอร์เน็ตเพื่อโหลดตัวอ่าน (Tesseract.js ~4 MB) · ฉลากตัวอย่างใช้ได้แม้ไม่มีเน็ต — ใช้ demo ทุกกรณีของ AC
+   - รูปฉลากไม่ถูกส่งออกนอกเครื่อง และไม่ถูกเก็บ (NFR-09)
 
-วิธีเปิด: เปิดไฟล์ `MedMind-Responsive/index.html` ด้วยเบราว์เซอร์
+## โครงไฟล์
+| โฟลเดอร์ | คืออะไร | ผู้รับผิดชอบ |
+|---|---|---|
+| `MedMind-Responsive/` | หน้าเว็บ demo: `index.html`, `caregiver.html`, `styles.css`, `app.js`, `flows.js` | Rossatorn |
+| `js/core/store.js` | ชื่อ key ใน localStorage + เวลามื้ออาหาร — ทุกฟีเจอร์ใช้ข้อมูลผ่านไฟล์นี้ | YAR OO (PM) |
+| `js/logic/` | ตรรกะล้วน ไม่แตะหน้าจอ มีเทสต์ทุกไฟล์: `reminder.js` (FR-03, BR-06, BR-08) · `confirm.js` (FR-04, FR-05) · `labelParser.js` (FR-02: ข้อความฉลาก → ร่าง) · `labelForm.js` (FR-02: ร่าง → ฟอร์ม, BR-06) | Nichanan · YAR OO |
+| `js/services/scanner.js` | อ่านตัวหนังสือจากรูปในเบราว์เซอร์ (Tesseract.js ไทย + อังกฤษ) | YAR OO |
+| `js/features/scan.js`, `css/scan.css` | สแกนฉลากในฟอร์มเพิ่มยาของหน้าผู้ดูแล | YAR OO |
+| `tests/` | automated test ของ `js/logic/` และ `js/core/` | เจ้าของแต่ละไฟล์ |
 
-วิธีรันเทสต์ (Node.js 18 ขึ้นไป, รันจากโฟลเดอร์บนสุดของ repo):
+ลำดับโหลดในหน้า HTML: `js/logic/` → `js/core/` → `js/services/` → `js/features/` (ในหน้าผู้ดูแลต่อจาก `flows.js` และ `app.js`)
+
+## วิธีรันเทสต์
+Node.js 21 ขึ้นไป รันจากโฟลเดอร์บนสุดของ repo:
 ```bash
-node --test prototype/tests/reminder.confirm.test.js
+npm test
 ```
-ผลล่าสุด (17 ต.ค. 2569, Node 22): ผ่าน 23 / ไม่ผ่าน 0
+ผลล่าสุด (19 ต.ค. 2569, Node 22): ผ่าน 65 / ไม่ผ่าน 0

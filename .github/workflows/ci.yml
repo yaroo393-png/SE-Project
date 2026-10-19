@@ -1,0 +1,42 @@
+# รันทุกครั้งที่ push หรือเปิด PR — ผลแสดงในแท็บ Actions และเป็นเครื่องหมายผ่าน/ไม่ผ่านในหน้า PR
+# M4: Unit tests (run) · Basic quality check (lint) · Basic security check (ไม่มีความลับหลุด)
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Unit tests (prototype/js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+
+  lint:
+    name: Quality (ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  security:
+    name: Security (no secrets in repo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run check:secrets
