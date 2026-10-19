@@ -2,7 +2,7 @@
 
 Clickable prototype (HTML/CSS/JS) เปิดในเบราว์เซอร์ **ไม่ต้องมี server / ฐานข้อมูล** — ข้อมูลอยู่ใน `localStorage` ของเบราว์เซอร์
 
-> สถานะ: **บางส่วน** — ยังไม่ครบ AC ของ FR-01..05 และหน้าเว็บยังไม่ได้เรียกใช้ `js/logic/reminder.js` / `confirm.js` (#26) · สแกนฉลาก (FR-02) ใช้ได้แล้วในหน้าผู้ดูแล
+> สถานะ: **บางส่วน** — ยังไม่ครบ AC ของ FR-01..05 และหน้าเว็บยังไม่ได้เรียกใช้ `js/logic/reminder.js` / `confirm.js` (#49, #50) · สแกนฉลาก (FR-02) ใช้ได้แล้วในหน้าผู้ดูแล
 
 ## วิธีเปิด
 1. ผู้สูงอายุ: เปิด [`MedMind-Responsive/index.html`](MedMind-Responsive/index.html)

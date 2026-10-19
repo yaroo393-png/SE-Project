@@ -1,6 +1,6 @@
 # Final Project Report — MedMind
 
-> สถานะ: **ร่าง** — §1–3, §7, §8 (บางส่วน), §9 (บางส่วน), §10 เขียนแล้ว · §4 รอ #24/#25 · §5 รอ #26 · §6 รอ #29
+> สถานะ: **ร่าง** — §1–3, §7, §8 (บางส่วน), §9 (บางส่วน), §10 เขียนแล้ว · §4 รอ #47/#48 · §5 รอ #46–#50 · §6 รอ #50
 > ทุกข้อความในรายงานสรุปจาก Charter และ SRS — ถ้าขัดกัน ให้ยึด `spec.md` เป็นต้นฉบับ
 
 ---
@@ -112,19 +112,19 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 ## 4. การออกแบบ (จาก M2 — `architecture.md`, `design-system.md`)
 
-**[รอ #24 และ #25]** — architecture ที่มาจาก FR · Use Case Diagram · Sequence FR-03 → FR-04 → FR-05 · State Machine DoseSession · ERD · Screen Map
+**[รอ #47 และ #48]** — architecture ที่มาจาก FR · Use Case Diagram · Sequence FR-03 → FR-04 → FR-05 · State Machine DoseSession · ERD · Screen Map
 
 ---
 
 ## 5. การทำ Prototype
 
-**[รอ #26]** — เครื่องมือที่ใช้ · ขอบเขต Must FR (FR-01–05) · ภาพหน้าจอพร้อมป้าย "Covers: FR-x" · วิธีเปิด
+**[รอ #46–#50]** — เครื่องมือที่ใช้ · ขอบเขต Must FR (FR-01–05) · ภาพหน้าจอพร้อมป้าย "Covers: FR-x" · วิธีเปิด
 
 ---
 
 ## 6. การทดสอบ
 
-**[รอ #29]** — ตาราง Scenario | คาดหวัง | ผล ตาม AC ของ FR-01–05 · ผล automated test (NFR-01, 04, 05, 06, 07, 10) · ผลทดสอบกับผู้ใช้ (NFR-02, NFR-03, ตัววัดข้อ 1–4)
+**[รอ #50]** — ตาราง Scenario | คาดหวัง | ผล ตาม AC ของ FR-01–05 · ผล automated test (NFR-01, 04, 05, 06, 07, 10) · ผลทดสอบกับผู้ใช้ (NFR-02, NFR-03, ตัววัดข้อ 1–4)
 > ใส่เฉพาะผลที่วัดจริง — ข้อที่ยังไม่ได้วัด ให้เขียนว่า "ยังไม่ได้วัด" พร้อมเหตุผล
 
 ---
@@ -145,11 +145,11 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 | สมาชิก | งานที่รับผิดชอบ | Issue | หลักฐาน |
 |---|---|---|---|
-| YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | [#22](https://github.com/yaroo393-png/SE-Project/issues/22), [#23](https://github.com/yaroo393-png/SE-Project/issues/23), [#27](https://github.com/yaroo393-png/SE-Project/issues/27), [#28](https://github.com/yaroo393-png/SE-Project/issues/28), [#30](https://github.com/yaroo393-png/SE-Project/issues/30), [#31](https://github.com/yaroo393-png/SE-Project/issues/31), [#32](https://github.com/yaroo393-png/SE-Project/issues/32) | Charter/SRS/Backlog: [PR ที่ merge แล้วทั้งหมดของ yaroo393-png](https://github.com/yaroo393-png/SE-Project/pulls?q=is%3Apr+is%3Amerged+author%3Ayaroo393-png) (บางส่วนร่างด้วย AI ดู §7) · commit: [`b390fac`](https://github.com/yaroo393-png/SE-Project/commit/b390fac), [`6d84a27`](https://github.com/yaroo393-png/SE-Project/commit/6d84a27), [`1fb8925`](https://github.com/yaroo393-png/SE-Project/commit/1fb8925), [`430bf68`](https://github.com/yaroo393-png/SE-Project/commit/430bf68), [`d99fd5d`](https://github.com/yaroo393-png/SE-Project/commit/d99fd5d), [`bf594a0`](https://github.com/yaroo393-png/SE-Project/commit/bf594a0) |
-| Takkan Khanlui | Architecture, Use Case, Sequence, State Machine, ERD | [#24](https://github.com/yaroo393-png/SE-Project/issues/24) | **[ใส่ commit เมื่อมี]** |
-| Rossatorn Sangkaew | Design tokens, Screen Map, Error/empty states, CSS ของ prototype, Demo Slides | [#25](https://github.com/yaroo393-png/SE-Project/issues/25) | **[ใส่ commit เมื่อมี]** |
-| Nichanan Lalua | Prototype Increment 1–2, ข้อมูลสมาชิกใน Charter §9 | [#26](https://github.com/yaroo393-png/SE-Project/issues/26) | ข้อมูลสมาชิกใน Charter §9 (9 ต.ค.) · prototype **[ใส่ commit เมื่อมี]** |
-| Suchitra Khomdee | Test plan, automated test, ทดสอบกับผู้ใช้ | [#29](https://github.com/yaroo393-png/SE-Project/issues/29) | **[ใส่ commit เมื่อมี]** |
+| YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | [#22](https://github.com/yaroo393-png/SE-Project/issues/22), [#23](https://github.com/yaroo393-png/SE-Project/issues/23), [#51](https://github.com/yaroo393-png/SE-Project/issues/51), [#30](https://github.com/yaroo393-png/SE-Project/issues/30), [#31](https://github.com/yaroo393-png/SE-Project/issues/31), [#32](https://github.com/yaroo393-png/SE-Project/issues/32) | Charter/SRS/Backlog: [PR ที่ merge แล้วทั้งหมดของ yaroo393-png](https://github.com/yaroo393-png/SE-Project/pulls?q=is%3Apr+is%3Amerged+author%3Ayaroo393-png) (บางส่วนร่างด้วย AI ดู §7) · commit: [`b390fac`](https://github.com/yaroo393-png/SE-Project/commit/b390fac), [`6d84a27`](https://github.com/yaroo393-png/SE-Project/commit/6d84a27), [`1fb8925`](https://github.com/yaroo393-png/SE-Project/commit/1fb8925), [`430bf68`](https://github.com/yaroo393-png/SE-Project/commit/430bf68), [`d99fd5d`](https://github.com/yaroo393-png/SE-Project/commit/d99fd5d), [`bf594a0`](https://github.com/yaroo393-png/SE-Project/commit/bf594a0) |
+| Takkan Khanlui | Architecture, Use Case, Sequence, State Machine, ERD | [#47](https://github.com/yaroo393-png/SE-Project/issues/47) | **[ใส่ commit เมื่อมี]** |
+| Rossatorn Sangkaew | Design tokens, Screen Map, Error/empty states, CSS ของ prototype, Demo Slides | [#46](https://github.com/yaroo393-png/SE-Project/issues/46), [#48](https://github.com/yaroo393-png/SE-Project/issues/48) | **[ใส่ commit เมื่อมี]** |
+| Nichanan Lalua | Prototype Increment 1–2, ข้อมูลสมาชิกใน Charter §9 | [#49](https://github.com/yaroo393-png/SE-Project/issues/49) | ข้อมูลสมาชิกใน Charter §9 (9 ต.ค.) · prototype **[ใส่ commit เมื่อมี]** |
+| Suchitra Khomdee | Test plan, automated test, ทดสอบกับผู้ใช้ | [#50](https://github.com/yaroo393-png/SE-Project/issues/50) | **[ใส่ commit เมื่อมี]** |
 
 ---
 
@@ -159,11 +159,11 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 | ปัญหา | Requirement | Design | Feature | Test |
 |---|---|---|---|---|
-| ผู้สูงอายุไม่สะดวกสมัครบัญชี; ผู้ดูแลไม่อยู่ด้วย | FR-01 | **[รอ #24]** | **[รอ #26]** | FR-01 AC 1–6 · NFR-04, 05, 10 → **[ผลจาก #29]** |
-| ผู้ดูแลอยากให้ช่วยกรอกข้อมูลยาจากฉลาก | FR-02 | **[รอ #24]** | **[รอ #26]** | FR-02 AC 1–10 · NFR-06, 09 → **[ผลจาก #29]** |
-| ลืมกินยา / กินไม่ตรงเวลา | FR-03 | **[รอ #24]** State machine ของมื้อยา | **[รอ #26]** หน้าเตือน | FR-03 AC 1–4 · NFR-01 → **[ผลจาก #29]** |
-| จำไม่ได้ว่ากินแล้วหรือยัง | FR-04 | **[รอ #24]** | **[รอ #26]** | FR-04 AC 1–6 · NFR-02, 03, 07 → **[ผลจาก #29]** |
-| ต้องโทร/ส่ง LINE ถามทุกมื้อ; ไม่มีสถานะรวม | FR-05 | **[รอ #24]** | **[รอ #26]** | FR-05 AC 1–6 · NFR-01 → **[ผลจาก #29]** |
+| ผู้สูงอายุไม่สะดวกสมัครบัญชี; ผู้ดูแลไม่อยู่ด้วย | FR-01 | **[รอ #47]** | **[รอ #47]** | FR-01 AC 1–6 · NFR-04, 05, 10 → **[ผลจาก #50]** |
+| ผู้ดูแลอยากให้ช่วยกรอกข้อมูลยาจากฉลาก | FR-02 | **[รอ #47]** | สแกนฉลาก → เติมฟอร์มเพิ่มยา (`js/features/scan.js`) · ฟอร์มยาตามช่อง **[รอ #48, #51]** | FR-02 AC 1–10 · NFR-06, 09 → **[ผลจาก #50]** |
+| ลืมกินยา / กินไม่ตรงเวลา | FR-03 | **[รอ #47]** State machine ของมื้อยา | **[รอ #49]** หน้าเตือน | FR-03 AC 1–4 · NFR-01 → **[ผลจาก #50]** |
+| จำไม่ได้ว่ากินแล้วหรือยัง | FR-04 | **[รอ #47]** | **[รอ #49]** | FR-04 AC 1–6 · NFR-02, 03, 07 → **[ผลจาก #50]** |
+| ต้องโทร/ส่ง LINE ถามทุกมื้อ; ไม่มีสถานะรวม | FR-05 | **[รอ #47]** | **[รอ #50]** | FR-05 AC 1–6 · NFR-01 → **[ผลจาก #50]** |
 
 FR-06–08 (Should/Could) อยู่นอก MVP — ดู `spec.md` §7
 

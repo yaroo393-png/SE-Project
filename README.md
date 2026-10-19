@@ -17,9 +17,9 @@
 |---|---|
 | M1 Charter | ฉบับปรับปรุง (ข้อมูลสมาชิกกรอกแล้ว · กำหนดเสร็จ Increment ใน §8 ใส่แล้ว) |
 | M2 SRS / Requirements | SRS v2.0 ร่างแล้ว (`spec.md`): FR-01..08 (Must 5 · Should 1 · Could 2), BR-01..17, AC, NFR-01..10, Use case, Traceability — ยังรอ: Use-case diagram, แถวว่างใน AI log (§8) |
-| M2 Design | โครง: `architecture.md` (มีแค่ตาราง Module & Event), `design-system.md` (หัวข้อ), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#24), Screen Map (#25) |
-| M3 Prototype | บางส่วน: หน้าเว็บ `prototype/MedMind-Responsive/` (ผู้สูงอายุ `index.html` · ผู้ดูแล `caregiver.html`) มีจับคู่ด้วยรหัส/QR ในเบราว์เซอร์ และ**สแกนฉลากจริง** (อ่านในเบราว์เซอร์ → เติมฟอร์มเพิ่มยา) · ตรรกะ `prototype/js/logic/` (FR-02 สแกน, FR-03, FR-04, FR-05 บางข้อ) — ยังรอ: ต่อหน้าเว็บเข้ากับ `reminder.js` / `confirm.js` (เตือนซ้ำ T+5/T+10, ปุ่ม "ยังไม่กิน", แจ้ง T+15), ตั้งเวลามื้อ, ฟอร์มยาตามช่องของ FR-02 (#26) |
-| Automated tests | `npm test` → `prototype/tests/`: 65 เทสต์ — reminder + confirm 23 (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) · labelParser 27 + labelForm 9 (FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, NFR-09) · store 6 (BR-05) — ผ่าน 65/65 (รัน 19 ต.ค. 2569, Node 22) · CI รัน test + lint + ตรวจความลับทุก PR · ยังไม่มีเทสต์ FR-01 และยังไม่ทดสอบกับผู้ใช้ (#29) |
+| M2 Design | โครง: `architecture.md` (มีแค่ตาราง Module & Event), `design-system.md` (หัวข้อ), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#47), Screen Map (#48) |
+| M3 Prototype | บางส่วน: หน้าเว็บ `prototype/MedMind-Responsive/` (ผู้สูงอายุ `index.html` · ผู้ดูแล `caregiver.html`) มีจับคู่ด้วยรหัส/QR ในเบราว์เซอร์ และ**สแกนฉลากจริง** (อ่านในเบราว์เซอร์ → เติมฟอร์มเพิ่มยา) · ตรรกะ `prototype/js/logic/` (FR-02 สแกน, FR-03, FR-04, FR-05 บางข้อ) — ยังรอ: แยกไฟล์หน้าเว็บ (#46), จับคู่ครบ AC (#47), ตั้งเวลามื้อ + ฟอร์มยาตามช่องของ FR-02 (#48), ต่อหน้าเว็บเข้ากับ `reminder.js` / `confirm.js` — เตือนซ้ำ T+5/T+10, ปุ่ม "ยังไม่กิน" (#49), สถานะ + แจ้ง T+15 (#50) |
+| Automated tests | `npm test` → `prototype/tests/`: 65 เทสต์ — reminder + confirm 23 (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) · labelParser 27 + labelForm 9 (FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, NFR-09) · store 6 (BR-05) — ผ่าน 65/65 (รัน 19 ต.ค. 2569, Node 22) · CI รัน test + lint + ตรวจความลับทุก PR · ยังไม่มีเทสต์ FR-01 (#47) และยังไม่ทดสอบกับผู้ใช้ (#50) |
 | Final Report / AI-Use Statement | ร่างแล้ว: Report §1–3, §7–10 (§8–9 บางส่วน) · AI-Use Statement สรุปจาก `spec.md` §8 — ยังรอ: §4 Design, §5 Prototype, §6 ผลทดสอบ |
 
 > README นี้จะอัปเดตเมื่อมีผลจริง ช่อง **[ ]** = ยังไม่มีข้อมูลจริง ไม่เดา
@@ -95,18 +95,18 @@ prototype/
 │   │   ├── confirm.js        # ยืนยัน + แจ้ง Caregiver + สถานะรายวัน (FR-04, FR-05) — Nichanan
 │   │   ├── labelParser.js    # ข้อความจากฉลาก → ร่างข้อมูลยา (FR-02, BR-04, BR-07, NFR-09) — YAR OO
 │   │   ├── labelForm.js      # ร่าง → ค่าในฟอร์มเพิ่มยา + เวลาเตือนจากเวลามื้อ (FR-02, BR-06) — YAR OO
-│   │   ├── pairing.js      # รหัสเชิญ / ยินยอม / ยกเลิก (FR-01) — Takkan
-│   │   ├── medication.js   # ตรวจฟอร์มยา + เวลามื้อ (FR-02, BR-03–07) — Rossatorn
-│   │   └── status.js       # สถานะรายวัน + ข้อความถึงผู้ดูแล (FR-05) — Suchitra
+│   │   ├── pairing.js        # (ยังไม่มี — #47) รหัสเชิญ / ยินยอม / ยกเลิก (FR-01) — Takkan
+│   │   ├── medication.js     # (ยังไม่มี — #48) ตรวจฟอร์มยา + เวลามื้อ (FR-02, BR-03–07) — Rossatorn
+│   │   └── status.js         # (ยังไม่มี — #50) สถานะรายวัน + ข้อความถึงผู้ดูแล (FR-05) — Suchitra
 │   ├── services/
 │   │   └── scanner.js        # อ่านตัวหนังสือจากรูปในเบราว์เซอร์ (Tesseract.js) — YAR OO
 │   └── features/             # การทำงานบนหน้าจอของแต่ละฟีเจอร์
 │       ├── scan.js           # สแกนฉลาก → เติมฟอร์มเพิ่มยา (FR-02) — YAR OO
-│       └── <ฟีเจอร์>.js     # pairing (Takkan) · medicine (Rossatorn) · reminder (Nichanan) · caregiverStatus (Suchitra)
+│       └── <ฟีเจอร์>.js       # (ยังไม่มี) pairing #47 (Takkan) · medicine #46 #48 (Rossatorn) · reminder #49 (Nichanan) · caregiverStatus #50 (Suchitra)
 └── tests/                    # npm test — ชื่อไฟล์ตามไฟล์ใน js/logic/ และ js/core/
     ├── reminder.confirm.test.js
     ├── labelParser.test.js, labelForm.test.js, store.test.js
-    └── <ฟีเจอร์>.test.js
+    └── <ฟีเจอร์>.test.js       # (ยังไม่มี) pairing #47 · medication #48 · status #50
 .github/
 ├── workflows/ci.yml          # CI ทุก push / PR: unit test + ESLint + ตรวจความลับ
 └── pull_request_template.md  # ช่อง Golden Thread + checklist ก่อนขอรีวิว
@@ -121,7 +121,7 @@ CLAUDE.md                     # คำสั่งสำหรับ Claude Code
 
 ## 🚀 วิธีการเปิดใช้งาน Prototype และการรันระบบ (Quick Start)
 
-> **Prototype ยังไม่ครบ** — หน้าเว็บมีแล้วแต่ยังไม่ครบ FR-01..05 และยังไม่ได้ใช้ตรรกะใน `js/logic/` (ดูสถานะด้านบน)
+> **Prototype ยังไม่ครบ** — หน้าเว็บมีแล้วแต่ยังไม่ครบ FR-01..05 · สแกนฉลาก (FR-02) ใช้ตรรกะใน `js/logic/` แล้ว แต่หน้าเตือน / ยืนยัน / สถานะยังไม่ได้เรียก `reminder.js` / `confirm.js` (#49, #50) (ดูสถานะด้านบน)
 
 ### 1. วิธีเปิดดู Prototype ในเว็บเบราว์เซอร์ (Clickable Prototype)
 Prototype เป็น HTML/CSS/JS เปิดในเบราว์เซอร์ได้โดยตรง **ไม่ต้องมี server หรือฐานข้อมูล** (ข้อมูลเป็นข้อมูลจำลอง; การแจ้งเตือนและเวลาเป็นการจำลอง)
@@ -158,11 +158,11 @@ npm run check        # test + ตรวจคุณภาพโค้ด (ESLint
 
 | ชื่อ–นามสกุล | GitHub | บทบาท | ฟีเจอร์ที่เขียนโค้ด | ไฟล์หลัก |
 |---|---|---|---|---|
-| YAR OO | [yaroo393-png](https://github.com/yaroo393-png) | Project Manager | **FR-02 สแกนฉลาก** + ข้อมูลร่วม (`store.js`), CI | `js/logic/labelParser.js`, `labelForm.js` · `js/services/scanner.js` · `js/features/scan.js` · `js/core/store.js` |
-| Takkan Khanlui | [V31311](https://github.com/V31311) | System Designer | **FR-01 จับคู่** · Design doc (#24) | `js/logic/pairing.js` · `js/features/pairing.js` |
-| Rossatorn Sangkaew | [IDK-SleepyBro](https://github.com/IDK-SleepyBro) | UX/UI Designer | **FR-02 จัดการยา** (เวลามื้อ, ฟอร์มยา) · หน้าเว็บ + Design system (#25) | `js/logic/medication.js` · `js/features/medicine.js` · หน้าเว็บ demo |
-| Nichanan Lalua | [KaidangSuk](https://github.com/KaidangSuk) | Prototype Developer | **FR-03 เตือน + FR-04 ยืนยัน** (#26) | `js/logic/reminder.js`, `confirm.js` · `js/features/reminder.js` |
-| Suchitra Khomdee | [Khaiwann](https://github.com/Khaiwann) | QA / Tester | **FR-05 สถานะ + แจ้งผู้ดูแล** · แผนและผลทดสอบ (#29) | `js/logic/status.js` · `js/features/caregiverStatus.js` |
+| YAR OO | [yaroo393-png](https://github.com/yaroo393-png) | Project Manager | **FR-02 สแกนฉลาก** + ข้อมูลร่วม (`store.js`), CI · รวมเล่มรายงาน (#51) | `js/logic/labelParser.js`, `labelForm.js` · `js/services/scanner.js` · `js/features/scan.js` · `js/core/store.js` |
+| Takkan Khanlui | [V31311](https://github.com/V31311) | System Designer | **FR-01 จับคู่** · Design doc (#47) | `js/logic/pairing.js` · `js/features/pairing.js` |
+| Rossatorn Sangkaew | [IDK-SleepyBro](https://github.com/IDK-SleepyBro) | UX/UI Designer | **FR-02 จัดการยา** (เวลามื้อ, ฟอร์มยา) · หน้าเว็บ + Design system (#46, #48) | `js/logic/medication.js` · `js/features/medicine.js` · หน้าเว็บ demo |
+| Nichanan Lalua | [KaidangSuk](https://github.com/KaidangSuk) | Prototype Developer | **FR-03 เตือน + FR-04 ยืนยัน** (#49) | `js/logic/reminder.js`, `confirm.js` · `js/features/reminder.js` |
+| Suchitra Khomdee | [Khaiwann](https://github.com/Khaiwann) | QA / Tester | **FR-05 สถานะ + แจ้งผู้ดูแล** · แผนและผลทดสอบ (#50) | `js/logic/status.js` · `js/features/caregiverStatus.js` |
 
 ทุกคนเขียนตรรกะ + เทสต์ + หน้าจอของฟีเจอร์ตัวเอง และอธิบายโค้ดของตัวเองได้ · กติกาการทำงาน (branch, PR, การใช้ AI): [`RULES.md`](RULES.md)
 
