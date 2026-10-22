@@ -146,7 +146,8 @@ test('OCR จริง: วรรณยุกต์หาย ("เมด", "ห�
 
 test('OCR จริง (มือถือ): ชื่อยาตัดถึงความแรง และบรรทัดเศษอักษรไม่ถูกเก็บเป็นข้อห้ามใช้', () => {
   const r = parseLabel("ACETAMOL 500 มก. เมด ( 0\n' ห้าม Ln i LT 1d 8 เมดตอ i$ นเพ 9");
-  assert.equal(r.draft.name, 'ACETAMOL 500 มก.');
+  // OCR อ่านได้แค่ท้ายชื่อ "ACETAMOL" → ตรงกับ PARACETAMOL ชื่อเดียวในรายการยา
+  assert.equal(r.draft.name, 'PARACETAMOL 500 มก.');
   assert.equal(r.draft.contraindication, '');
 });
 
@@ -195,6 +196,64 @@ test('ฉลากโรงพยาบาลแบบที่ 2: ชื่อ�
   assert.deepEqual(r.draft.timings.map((t) => t.slot), ['morning', 'evening']);
   assert.equal(r.draft.caution, '');
   if (medication) assert.equal(draftCheck(r.draft).ok, true);
+});
+
+// ---------- OCR อ่านเพี้ยนจากรูปถ่าย (ข้อความจากชุดทดสอบฉลากจำลอง — ชื่อ/HN สมมติ) ----------
+
+test('ชื่อยาที่ OCR อ่านแตกเป็นหลายคำ → รวมกลับเป็นชื่อในรายการยา + บอกให้ผู้ดูแลตรวจ', () => {
+  const a = parseLabel('AMLODIP INE        วันที่ 1 ต.ค. 2569\n5 MG/1 TABLET\nรับประทานครั้งละ 1 เม็ด หลังอาหารเช้า');
+  assert.equal(a.draft.name, 'AMLODIPINE 5 MG');
+  assert.deepEqual(a.draft.unsure, ['name']);
+  // ตัว E ถูกอ่านเป็น "เ" ตรงกลางชื่อ
+  assert.equal(parseLabel('PARAC เ TAMOL 500 MG\nรบประทานครั้งละ 1 เม็ด\nก่อนนอน').draft.name, 'PARACETAMOL 500 MG');
+  assert.equal(parseLabel('ATORV ASTATIN 40 MG\nครั้งละ 1 เม็ด หลังอาหารเย็น').draft.name, 'ATORVASTATIN 40 MG');
+});
+
+test('ชื่อยาที่อ่านถูกอยู่แล้ว / ไม่อยู่ในรายการ → ใช้ตามที่อ่านได้ ไม่สลับเป็นชื่อใกล้เคียง', () => {
+  const r = parseLabel('LOSARTAN 50 MG\nครั้งละ 1 เม็ด หลังอาหารเช้า');
+  assert.equal(r.draft.name, 'LOSARTAN 50 MG'); // ไม่กลายเป็น VALSARTAN
+  assert.deepEqual(r.draft.unsure, []);
+  assert.equal(parseLabel('ZINC SULFATE 50 MG\nครั้งละ 1 เม็ด หลังอาหารเช้า').draft.name, 'ZINC SULFATE 50 MG');
+});
+
+test('ชื่อยาที่อ่านได้แค่ท้ายชื่อ (ขึ้นต้นตัวพิมพ์เล็ก) → เก็บไว้แต่บอกให้ตรวจ', () => {
+  const r = parseLabel('azole 20 mg Tab\nครั้งละ 1 เม็ด ก่อนอาหารเช้า 30 นาที');
+  assert.equal(r.draft.name, 'azole 20 mg');
+  assert.deepEqual(r.draft.unsure, ['name']);
+});
+
+test('บรรทัด "ชื่อยา" ที่ OCR อ่านเป็น "สื่อยา" + หน่วย mg อ่านเป็น m8 → ยังได้ชื่อยา', () => {
+  const r = parseLabel('สื่อยา: Chlorpheniramine 2 m8\nรับประทานครั้งละ 1 เม็ด ก่อนนอน');
+  assert.equal(r.draft.name, 'Chlorpheniramine 2 mg');
+});
+
+test('ชื่อยาบรรทัดเดียวกับวันที่ ("VITAMIN B COMPLEX  วันที่ …") → ได้ชื่อ ไม่ทิ้งทั้งบรรทัด', () => {
+  const r = parseLabel('นายสมมติ ทดสอบ HN0000000\nVITAMIN B COMPLEX    วันที่ 1 ต.ค. 2569\n1/1 TABLET\nรับประทานครั้งละ 1 เม็ด หลังอาหารเช้า');
+  assert.equal(r.draft.name, 'VITAMIN B COMPLEX');
+});
+
+test('จำนวนเม็ด: "ครั้งละ | เม็ด" → 1 แต่ต้องตรวจ · ")" และ 12 เม็ด → ว่าง (ไม่เดา, BR-04)', () => {
+  const bar = parseLabel('ATORVASTATIN 40 MG\nะบประทานครั้งละ | เม็ด วันละ 1 ครั้ง\nหลังอาหารเย็น');
+  assert.equal(bar.draft.pills, 1);
+  assert.deepEqual(bar.draft.unsure, ['pills']);
+  // ")" เจอทั้งจากเลข 1 และ 2 ที่อ่านเพี้ยน
+  assert.equal(parseLabel('LOSARTAN 50 MG\nชบประทานครั้งละ ) เม็ด วันละ 3 ครั้ง\nหลังอาหาร เช้า กลางวัน เย็น').draft.pills, null);
+  // "1/2 เม็ด" ที่ OCR ทำ "/" หาย
+  assert.equal(parseLabel('Aspirin 81 mg Tab\nรับประทานครั้งละ 12 เม็ด\nหลังอาหารเช้า').draft.pills, null);
+});
+
+test('BR-06: "ห้ามรับประทานก่อนนอน" เป็นข้อห้าม ไม่ใช่มื้อก่อนนอน', () => {
+  const r = parseLabel('Furosemide 40 mg Tab\nรับประทานครั้งละ 1 เม็ด วันละ 1 ครั้ง\nหลังอาหารเช้า ห้ามรับประทานก่อนนอน');
+  assert.deepEqual(r.draft.timings.map((t) => t.type + '/' + t.slot), ['after/morning']);
+  // ข้อห้ามที่ไม่ได้ติดกับคำบอกเวลา → เวลากินยายังอยู่ครบ
+  const chew = parseLabel('OMEPRAZOLE 20 MG\nรับประทานครั้งละ 1 เม็ด ห้ามเคี้ยว ก่อนอาหารเช้า 30 นาที');
+  assert.deepEqual(chew.draft.timings.map((t) => t.type + '/' + t.slot + '/' + t.minutesBefore), ['before/morning/30']);
+});
+
+test('ตัวอักษรที่ OCR สับสน: "เข้า" = เช้า · "ซ้อนชา" = ยาน้ำ', () => {
+  const r = parseLabel('METFORMIN 500 MG\nรับประทานครั้งละ 1 เม็ด\nก่อนอาหาร 15 นาทีเข้า กลางวัน เย็น');
+  assert.deepEqual(r.draft.timings.map((t) => t.slot), ['morning', 'noon', 'evening']);
+  assert.equal(parseLabel('สื่อยา: Chlorpheniramine 2 mg\nชุบประทานครั้งละ 1 ซ้อนชา วันละ 3 ครั้ง').draft.unsupported, 'liquid');
 });
 
 // ---------- ผลจาก AI (Gemini) — ไม่เชื่อทั้งหมด ตรวจรูปแบบก่อนเป็นร่าง ----------

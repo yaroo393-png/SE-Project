@@ -63,6 +63,14 @@ test('FR-02 ✗4 / BR-07: ยาเมื่อมีอาการ → unsuppo
   assert.equal(f.unsupported, 'ระบบยังไม่รองรับยาเมื่อมีอาการ');
 });
 
+test('BR-04: ช่องที่ระบบแก้คำที่อ่านเพี้ยนให้ → เติมค่าแต่อยู่ใน unsure (หน้าจอเน้นให้ตรวจ)', () => {
+  const f = form('AMLODIP INE 5 MG\nรับประทานครั้งละ | เม็ด หลังอาหารเช้า');
+  assert.equal(f.fields.name, 'AMLODIPINE 5 MG');
+  assert.equal(f.fields.dose, '1 เม็ด');
+  assert.deepEqual(f.unsure, ['name', 'dose']);
+  assert.deepEqual(f.missing, []);
+});
+
 test('ร่างว่าง (กรอกเอง) → ทุกช่องว่าง', () => {
   const f = toForm({ name: '', pills: null, timings: [] }, MEALS, reminder);
   assert.deepEqual(f.missing, ['name', 'dose', 'time', 'instruction']);

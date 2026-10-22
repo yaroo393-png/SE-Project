@@ -56,6 +56,7 @@
    * คืน {
    *   fields: { name, dose, time, instruction }   ค่าที่จะเติม — ช่องที่อ่านไม่ได้เป็น '' (BR-04)
    *   missing: ['name', 'dose', 'time', ...]      ช่องที่ต้องให้ผู้ดูแลกรอก/ตรวจ
+   *   unsure: ['name', 'dose']                    ช่องที่มีค่า แต่ระบบแก้คำที่ OCR อ่านเพี้ยนให้ → ต้องตรวจให้ตรงฉลาก
    *   timings: ['หลังอาหารเช้า (07:00)', ...]      ทุกมื้อที่อ่านได้ (ฟอร์มรับได้ทีละมื้อ)
    *   unsupported: ข้อความ | null                 FR-02 ✗4 → ห้ามบันทึก
    * }
@@ -73,10 +74,14 @@
       instruction: instructionOf(first)
     };
     var missing = Object.keys(FIELD_LABELS).filter(function (k) { return fields[k] === ''; });
+    var unsure = (Array.isArray(d.unsure) ? d.unsure : [])
+      .map(function (k) { return k === 'pills' ? 'dose' : k; })
+      .filter(function (k) { return fields[k]; });
 
     return {
       fields: fields,
       missing: missing,
+      unsure: unsure,
       timings: timings.map(function (t) {
         var time = reminder.reminderTime({ timing: t }, mealTimes);
         return timingText(t) + (time === null ? '' : ' (' + reminder.formatTime(time) + ')');

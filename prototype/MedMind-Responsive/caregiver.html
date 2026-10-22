@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
+  <!-- ต้องเลือกบทบาทที่ role.html ก่อนเข้าหน้านี้ (YAR OO) -->
+  <script src="../js/core/role.js" data-page-role="caregiver"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f7f2">
   <title>MedMind — ผู้ดูแล</title>
@@ -26,6 +28,7 @@
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
     <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h13l-4-4M20 16H7l4 4"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v11H3V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></symbol>
   </svg>
   <div class="app-shell">
@@ -53,6 +56,7 @@
           <button class="icon-button notification-button" id="reminder-toggle" aria-label="เปิดหรือปิดเสียงเตือน" title="เสียงเตือน"><svg class="icon"><use href="#i-bell"/></svg><span class="notification-dot"></span></button>
           <button class="icon-button" id="theme-toggle" aria-label="สลับโหมดสว่างและมืด" title="สลับโหมด"><svg class="icon"><use href="#i-moon"/></svg></button>
           <button class="language-button" id="language-toggle" aria-label="เปลี่ยนภาษา"><span>TH</span><span class="language-chevron">⌄</span></button>
+          <a class="icon-button" href="role.html" target="_top" aria-label="เปลี่ยนบทบาท" title="เปลี่ยนบทบาท"><svg class="icon"><use href="#i-swap"/></svg></a>
           <button class="avatar-button" data-page="caregiver" aria-label="ข้อมูลผู้ดูแล">ส</button>
         </div>
       </header>

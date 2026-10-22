@@ -15,6 +15,7 @@
   var MAX_SIDE = 2000;
   var MIN_SIDE = 1400;
   var TIMEOUT_MS = 120000;
+  var BG_SHRINK = 24; // ย่อกี่เท่าตอนหาแสงพื้น (มากพอให้ตัวหนังสือหายไป)
 
   var libPromise = null;
   var workerPromise = null;
@@ -52,6 +53,62 @@
   }
 
   /**
+   * ความสว่างของพื้นกระดาษรอบแต่ละจุด: ย่อรูปลงมาก ๆ (ตัวหนังสือหายไป เหลือแต่แสง/เงา) แล้วขยายกลับแบบเกลี่ย
+   * คืนค่าเป็น RGBA ขนาดเท่ารูปเดิม (ใช้ช่อง R)
+   */
+  function background(src, w, h) {
+    var sw = Math.max(8, Math.round(w / BG_SHRINK));
+    var sh = Math.max(8, Math.round(h / BG_SHRINK));
+    var small = document.createElement('canvas');
+    small.width = sw;
+    small.height = sh;
+    var sctx = small.getContext('2d', { willReadFrequently: true });
+    sctx.drawImage(src, 0, 0, sw, sh);
+    // ตัวหนังสือสีเข้มทำให้พื้นดูมืดลง → ใช้ค่าที่สว่างที่สุดในช่องข้าง ๆ แทน (max filter 3×3)
+    var px = sctx.getImageData(0, 0, sw, sh);
+    var s = px.data;
+    var lum = new Float32Array(sw * sh);
+    var x, y, k;
+    for (k = 0; k < lum.length; k++) lum[k] = 0.299 * s[k * 4] + 0.587 * s[k * 4 + 1] + 0.114 * s[k * 4 + 2];
+    for (y = 0; y < sh; y++) {
+      for (x = 0; x < sw; x++) {
+        var m = 0;
+        for (var dy = -1; dy <= 1; dy++) {
+          for (var dx = -1; dx <= 1; dx++) {
+            var yy = Math.min(sh - 1, Math.max(0, y + dy));
+            var xx = Math.min(sw - 1, Math.max(0, x + dx));
+            if (lum[yy * sw + xx] > m) m = lum[yy * sw + xx];
+          }
+        }
+        k = (y * sw + x) * 4;
+        s[k] = s[k + 1] = s[k + 2] = m;
+      }
+    }
+    sctx.putImageData(px, 0, 0);
+    var big = document.createElement('canvas');
+    big.width = w;
+    big.height = h;
+    var bctx = big.getContext('2d', { willReadFrequently: true });
+    bctx.imageSmoothingEnabled = true;
+    bctx.imageSmoothingQuality = 'high';
+    bctx.drawImage(small, 0, 0, w, h);
+    var out = bctx.getImageData(0, 0, w, h).data;
+    small.width = small.height = big.width = big.height = 0;
+    return out;
+  }
+
+  /** ค่าที่ตำแหน่ง p (0–1) ของ histogram */
+  function percentile(hist, total, p) {
+    var target = total * p;
+    var sum = 0;
+    for (var v = 0; v < 256; v++) {
+      sum += hist[v];
+      if (sum >= target) return v;
+    }
+    return 255;
+  }
+
+  /**
    * ย่อ/ขยายรูปให้พอดี → { color, ocr } ขนาดเท่ากัน (พิกัดตรงกัน)
    * color = รูปสีสำหรับส่งให้ AI (หลังปิดข้อมูลส่วนตัว) · ocr = ขาวดำ + เพิ่ม contrast ให้ OCR อ่านง่ายขึ้น
    */
@@ -73,18 +130,22 @@
       ctx.drawImage(color, 0, 0);
       var img = ctx.getImageData(0, 0, w, h);
       var d = img.data;
-      var lo = 255;
-      var hi = 0;
+      var bg = background(color, w, h);
+      var hist = new Array(256).fill(0);
       var i, g;
       for (i = 0; i < d.length; i += 4) {
         g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        // หารด้วยความสว่างของพื้นรอบ ๆ = ลบเงาและแสงสะท้อน กระดาษกลายเป็นสีขาวเท่ากันทั้งแผ่น
+        g = Math.min(255, (g * 255) / Math.max(1, bg[i]));
         d[i] = g;
-        if (g < lo) lo = g;
-        if (g > hi) hi = g;
+        hist[Math.round(g)]++;
       }
+      // ยืดความต่างสีโดยไม่สนจุดสุดขอบ 1% (จุดดำ/ขาวไม่กี่จุดไม่ทำให้ยืดไม่ได้)
+      var lo = percentile(hist, d.length / 4, 0.01);
+      var hi = percentile(hist, d.length / 4, 0.99);
       var range = Math.max(1, hi - lo);
       for (i = 0; i < d.length; i += 4) {
-        g = ((d[i] - lo) * 255) / range;
+        g = Math.max(0, Math.min(255, ((d[i] - lo) * 255) / range));
         d[i] = d[i + 1] = d[i + 2] = g;
       }
       ctx.putImageData(img, 0, 0);

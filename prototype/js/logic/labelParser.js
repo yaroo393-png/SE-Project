@@ -28,24 +28,64 @@
   var MARKS = /[ัิ-ฺ็-๎]/;
   var MARKS_G = /[ัิ-ฺ็-๎]/g;
   var NUMBER_WORDS = { 'หนง': 1, 'สอง': 2, 'สาม': 3 };
+  // OCR สับสนตัวที่หน้าตาคล้ายกันบ่อย: ช ↔ ซ ↔ ข ↔ ส, 1 ↔ | ) l I
   var SLOT_WORDS = [
-    { slot: 'morning', re: /เชา/ },
+    { slot: 'morning', re: /เชา|เขา/ },
     { slot: 'noon', re: /กลางวน|เทยง/ },
     { slot: 'evening', re: /เยน/ }
   ];
   /** คำบอกเวลา: ก่อนอาหาร / หลังอาหาร / ก่อนนอน — ใช้แบ่งข้อความเป็นช่วง ๆ */
   var TIMING_RE = /กอนอาหาร|หลงอาหาร|กอนนอน/g;
   var PILL_UNIT = '(?:เมด|แคปซล)';
+  var MAX_PILLS = 8;
   /** BR-07: ยาที่ MVP ไม่รองรับ */
   var UNSUPPORTED_RE = {
     prn: /เมอมอาการ|เวลามอาการ|เมอปวด|เวลาปวด|เมอมไข|เวลามไข|เมอจำเปน|prn/,
-    liquid: /ยานำ|ชอนชา|ชอนโตะ|\dซซ|\d(?:ml|มล\.?|มลลลตร)|เขยาขวด/,
+    liquid: /ยานำ|[ชซ]อนชา|[ชซ]อนโตะ|\dซซ|\d(?:ml|มล\.?|มลลลตร)|เขยาขวด/,
     half: /ครงเมด|1\/2เมด|½/
   };
   /** บรรทัดที่เป็นข้อมูลผู้ป่วย/สถานพยาบาล — ห้ามดึงไปเป็นชื่อยาหรือข้อควรระวัง (NFR-09) · เทียบบนโครง */
-  var PERSONAL_RE = /\bhn\b|\bvn\b|hn\s*[:\d]|พยาบาล|hospital|คลนก|รานยา|ชอ-?สกล|ผปวย|นาย|นาง|น\.ส\.|นพ\.|พญ\.|วนท|date|โทร|tel|เลขท|\d-\d{4}-\d{4}/i;
+  var PERSONAL_RE = /\bhn\b|\bvn\b|hn\s*[:\d]|พยาบาล|hospital|คลนก|รานยา|[ชซสฐ]อ-?สกล|ผปวย|นาย|นาง|น\.ส\.|นพ\.|พญ\.|วนท|date|โทร|tel|เลขท|\d-\d{4}-\d{4}/i;
   var NAME_STOPWORDS = /^(TAB|TABS|TABLET|TABLETS|CAP|CAPS|CAPSULE|CAPSULES|HOSPITAL|PHARMACY|CLINIC|MG|MCG|GPO)$/i;
-  var STRENGTH = '\\d+(?:\\.\\d+)?\\s*(?:mg|mcg|g|iu|มก\\.?|มลลกรม)(?![a-z])';
+  // หน่วยความแรง + แบบที่ OCR อ่านเพี้ยน (mg → m8 / m9 / mq / rng) · ตามด้วยอักษรเศษได้ 1 ตัว ("5MGn TABLET")
+  var STRENGTH = '\\d+(?:\\.\\d+)?\\s*(?:mg|m8|m9|mq|rng|mcg|g|iu|มก\\.?|มลลกรม)(?![a-z]{2})';
+  var BAD_MG = /(\d)\s*(?:m8|m9|mq|rng)(?![a-z])/gi;
+  /**
+   * อักขระขีดตั้งที่ OCR อ่านแทนเลข 1 (เฉพาะตรงจำนวนเม็ด เช่น "ครั้งละ | เม็ด") — ใช้ได้แต่ต้องให้ผู้ดูแลตรวจ (draft.unsure)
+   * ไม่รับวงเล็บ ")" เพราะเจอทั้งเลข 1 และ 2 ที่อ่านเพี้ยน → ปล่อยว่างดีกว่าเดาผิด (BR-04)
+   */
+  var ONE_LIKE = '[|li!]'; // เทียบหลัง compact() ซึ่งทำเป็นตัวพิมพ์เล็กแล้ว
+  /**
+   * ชื่อสามัญของยาที่ใช้บ่อยในผู้ป่วยนอก — ใช้แก้ชื่อที่ OCR อ่านแตก/เพี้ยนเล็กน้อย ("AMLODIP INE" → AMLODIPINE)
+   * แก้เฉพาะเมื่อใกล้ชื่อในรายการชื่อเดียวชัดเจน · ไม่ตรงชื่อไหน = ใช้ตามที่อ่านได้ (ผู้ดูแลตรวจทุกครั้ง BR-04)
+   */
+  var DRUG_NAMES = [
+    'AMLODIPINE', 'ATENOLOL', 'ENALAPRIL', 'LISINOPRIL', 'RAMIPRIL', 'LOSARTAN', 'VALSARTAN', 'CANDESARTAN',
+    'TELMISARTAN', 'IRBESARTAN', 'HYDROCHLOROTHIAZIDE', 'FUROSEMIDE', 'SPIRONOLACTONE', 'PROPRANOLOL',
+    'METOPROLOL', 'CARVEDILOL', 'BISOPROLOL', 'NIFEDIPINE', 'DILTIAZEM', 'VERAPAMIL', 'HYDRALAZINE', 'DOXAZOSIN',
+    'PRAZOSIN', 'METHYLDOPA', 'ISOSORBIDE DINITRATE', 'ISOSORBIDE MONONITRATE', 'DIGOXIN', 'AMIODARONE',
+    'TRIMETAZIDINE', 'METFORMIN', 'GLIPIZIDE', 'GLIBENCLAMIDE', 'GLICLAZIDE', 'GLIMEPIRIDE', 'PIOGLITAZONE',
+    'SITAGLIPTIN', 'VILDAGLIPTIN', 'ACARBOSE', 'SIMVASTATIN', 'ATORVASTATIN', 'ROSUVASTATIN', 'PRAVASTATIN',
+    'GEMFIBROZIL', 'FENOFIBRATE', 'EZETIMIBE', 'ASPIRIN', 'CLOPIDOGREL', 'WARFARIN', 'OMEPRAZOLE',
+    'LANSOPRAZOLE', 'PANTOPRAZOLE', 'ESOMEPRAZOLE', 'RANITIDINE', 'FAMOTIDINE', 'DOMPERIDONE', 'METOCLOPRAMIDE',
+    'SIMETHICONE', 'BISACODYL', 'SENNOSIDE', 'LACTULOSE', 'LOPERAMIDE', 'HYOSCINE', 'DICYCLOVERINE',
+    'PARACETAMOL', 'IBUPROFEN', 'NAPROXEN', 'DICLOFENAC', 'MEFENAMIC ACID', 'CELECOXIB', 'ETORICOXIB',
+    'PIROXICAM', 'MELOXICAM', 'TRAMADOL', 'ORPHENADRINE', 'TOLPERISONE', 'COLCHICINE', 'ALLOPURINOL',
+    'CHLORPHENIRAMINE', 'CETIRIZINE', 'LORATADINE', 'FEXOFENADINE', 'DESLORATADINE', 'HYDROXYZINE',
+    'DIPHENHYDRAMINE', 'BROMHEXINE', 'AMBROXOL', 'GUAIFENESIN', 'DEXTROMETHORPHAN', 'CARBOCYSTEINE',
+    'ACETYLCYSTEINE', 'PSEUDOEPHEDRINE', 'SALBUTAMOL', 'THEOPHYLLINE', 'MONTELUKAST', 'PREDNISOLONE',
+    'DEXAMETHASONE', 'AMOXICILLIN', 'DICLOXACILLIN', 'CEPHALEXIN', 'CEFDINIR', 'ROXITHROMYCIN', 'AZITHROMYCIN',
+    'CLARITHROMYCIN', 'DOXYCYCLINE', 'CIPROFLOXACIN', 'NORFLOXACIN', 'OFLOXACIN', 'LEVOFLOXACIN',
+    'METRONIDAZOLE', 'NITROFURANTOIN', 'FLUCONAZOLE', 'ACYCLOVIR', 'ALBENDAZOLE', 'LEVOTHYROXINE',
+    'PROPYLTHIOURACIL', 'METHIMAZOLE', 'FOLIC ACID', 'FERROUS SULFATE', 'FERROUS FUMARATE', 'CALCIUM CARBONATE',
+    'THIAMINE', 'PYRIDOXINE', 'CYANOCOBALAMIN', 'ASCORBIC ACID', 'ALENDRONATE', 'CALCITRIOL', 'AMITRIPTYLINE',
+    'NORTRIPTYLINE', 'FLUOXETINE', 'SERTRALINE', 'ESCITALOPRAM', 'TRAZODONE', 'LORAZEPAM', 'DIAZEPAM',
+    'ALPRAZOLAM', 'CLONAZEPAM', 'ZOLPIDEM', 'HALOPERIDOL', 'RISPERIDONE', 'QUETIAPINE', 'OLANZAPINE',
+    'GABAPENTIN', 'PREGABALIN', 'CARBAMAZEPINE', 'PHENYTOIN', 'VALPROATE', 'LEVETIRACETAM', 'TOPIRAMATE',
+    'DONEPEZIL', 'MEMANTINE', 'BETAHISTINE', 'CINNARIZINE', 'FLUNARIZINE', 'DIMENHYDRINATE', 'MECLIZINE',
+    'TAMSULOSIN', 'FINASTERIDE', 'POTASSIUM CHLORIDE', 'SODIUM BICARBONATE', 'CALCIUM ACETATE'
+  ];
+  var DRUG_KEYS = DRUG_NAMES.map(function (n) { return n.replace(/ /g, ''); });
 
   /** เลขไทย → อารบิก · "ํา" → "ำ" · ตัดช่องว่างระหว่างอักษรไทย (OCR มักแทรกช่องว่าง) */
   function normalize(raw) {
@@ -105,14 +145,18 @@
   }
 
   function toCount(word) {
+    if (new RegExp('^' + ONE_LIKE + '$').test(word)) return 1;
     var n = NUMBER_WORDS[word] || Number(word);
     return n >= 1 ? n : null;
   }
 
-  /** "ครั้งละ 1 เม็ด" / "ครั้งละหนึ่งแคปซูล" → 1 · ไม่เจอ → null */
+  /** "ครั้งละ 1 เม็ด" / "ครั้งละหนึ่งแคปซูล" → { count: 1, unsure: false } · OCR อ่าน "ครั้งละ | เม็ด" → unsure · ไม่เจอ → count null */
   function findPills(all) {
-    var m = new RegExp('(?:ครงละ|รบประทาน|กน)(\\d{1,2}|หนง|สอง|สาม)' + PILL_UNIT).exec(all);
-    return m ? toCount(m[1]) : null;
+    var m = new RegExp('(?:ครงละ|รบประทาน|กน)(\\d{1,2}|หนง|สอง|สาม|' + ONE_LIKE + ')' + PILL_UNIT).exec(all);
+    var count = m ? toCount(m[1]) : null;
+    // เกิน MAX_PILLS ไม่น่าใช่จำนวนเม็ดต่อครั้ง (เช่น OCR อ่าน "1/2 เม็ด" เป็น "12 เม็ด") → ปล่อยว่าง ไม่เดา
+    if (count === null || count > MAX_PILLS) return { count: null, unsure: false };
+    return { count: count, unsure: new RegExp('^' + ONE_LIKE + '$').test(m[1]) };
   }
 
   /** จำนวนเม็ดตัวสุดท้ายในช่วงข้อความ ("และ 1 เม็ด หลังอาหารเย็น") */
@@ -147,7 +191,12 @@
     var hits = [];
     var m;
     TIMING_RE.lastIndex = 0;
-    while ((m = TIMING_RE.exec(all)) !== null) hits.push({ word: m[0], start: m.index, end: m.index + m[0].length });
+    while ((m = TIMING_RE.exec(all)) !== null) {
+      // "ห้ามรับประทานก่อนนอน" / "งดรับประทานหลังอาหาร" = ข้อห้าม ไม่ใช่เวลากินยา
+      // ต้องติดกับคำบอกเวลาเท่านั้น — "ห้ามเคี้ยว ก่อนอาหารเช้า" ยังเป็นเวลากินยาตามปกติ
+      if (/(?:หาม|งด|ไมควร)(?:รบประทาน|กน|ทาน|ใชยา|ใช)?$/.test(all.slice(0, m.index))) continue;
+      hits.push({ word: m[0], start: m.index, end: m.index + m[0].length });
+    }
     var timings = [];
     var seen = {};
     var push = function (t) {
@@ -195,28 +244,156 @@
     return (text.match(/[A-Za-z][A-Za-z-]{3,}/g) || []).filter(function (w) { return !NAME_STOPWORDS.test(w); });
   }
 
+  /** จำนวนตัวอักษรที่ต้องแก้ (เพิ่ม/ลบ/เปลี่ยน) ให้ a เป็น b */
+  function editDistance(a, b) {
+    var prev = [];
+    var cur = [];
+    var i, j;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cur = [i];
+      for (j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      }
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+
+  /**
+   * ตัวอักษรอังกฤษที่อ่านได้ → ชื่อยาในรายการ หรือ null
+   * รับเมื่อ (1) ต่างกันไม่เกิน 1 ตัวต่อ 5 ตัวอักษร และใกล้ชื่อนี้กว่าชื่ออื่นชัดเจน
+   * หรือ (2) อ่านได้แค่หัว/ท้ายของชื่อ ≥ 6 ตัว (≥ 60% ของชื่อ) และตรงกับชื่อเดียว ("ACETAMOL" → PARACETAMOL)
+   */
+  function matchDrug(letters) {
+    var s = letters.toUpperCase();
+    if (s.length < 5) return null;
+    var best = -1;
+    var bestD = Infinity;
+    var secondD = Infinity;
+    DRUG_KEYS.forEach(function (key, i) {
+      if (Math.abs(key.length - s.length) > 3) return;
+      var d = editDistance(s, key);
+      if (d < bestD) {
+        secondD = bestD;
+        bestD = d;
+        best = i;
+      } else if (d < secondD) {
+        secondD = d;
+      }
+    });
+    if (best !== -1 && bestD <= Math.max(1, Math.floor(DRUG_KEYS[best].length / 5)) && bestD < secondD) return DRUG_NAMES[best];
+    if (s.length < 6) return null;
+    var part = DRUG_KEYS.filter(function (key) {
+      return (key.indexOf(s) === 0 || key.slice(-s.length) === s) && s.length / key.length >= 0.6;
+    });
+    return part.length === 1 ? DRUG_NAMES[DRUG_KEYS.indexOf(part[0])] : null;
+  }
+
+  /** เขียนชื่อในรายการให้เหมือนบนฉลาก: ฉลากพิมพ์ใหญ่ → AMLODIPINE · พิมพ์เล็ก → Amlodipine */
+  function styleLike(name, sample) {
+    var upper = (sample.match(/[A-Z]/g) || []).length;
+    var lower = (sample.match(/[a-z]/g) || []).length;
+    if (upper >= lower) return name;
+    return name.toLowerCase().replace(/(^|\s)[a-z]/g, function (c) { return c.toUpperCase(); });
+  }
+
+  /**
+   * หาชื่อยาในรายการจากคำในบรรทัด — รวมคำที่ OCR แยกออก ("ATORV ASTATIN", "PARAC เ TAMOL")
+   * คืน { start, end, name } (ตำแหน่งคำใน tokens) หรือ null
+   */
+  function findDrugIn(tokens) {
+    var letters = tokens.map(function (t) { return /\d/.test(t) || NAME_STOPWORDS.test(t) ? null : t.replace(/[^A-Za-z]/g, ''); });
+    for (var i = 0; i < tokens.length; i++) {
+      if (!letters[i]) continue;
+      for (var len = 3; len >= 1; len--) {
+        var end = i + len;
+        if (end > tokens.length || !letters[end - 1]) continue;
+        var joined = '';
+        var ok = true;
+        for (var k = i; k < end; k++) {
+          // ระหว่างคำยอมให้มีเศษ 1 ตัวที่ไม่ใช่อังกฤษ (OCR อ่าน E เป็น "เ")
+          if (letters[k] === null || (letters[k] === '' && tokens[k].length > 1)) { ok = false; break; }
+          joined += letters[k];
+        }
+        if (!ok) continue;
+        var name = matchDrug(joined);
+        if (name) return { start: i, end: end, name: styleLike(name, tokens.slice(i, end).join('')) };
+      }
+    }
+    return null;
+  }
+
+  /**
+   * แก้ชื่อยาที่อ่านได้: ชื่อแตก/เพี้ยนเล็กน้อย → ชื่อในรายการ · หน่วยเพี้ยน (m8) → mg · ตัดเศษอักษรไทยท้ายชื่ออังกฤษ
+   * คืน { name, unsure } · unsure = ระบบแก้ชื่อให้ หรือชื่อขึ้นต้นตัวพิมพ์เล็ก (มักอ่านได้แค่ท้ายชื่อ "azole") → ผู้ดูแลต้องตรวจ
+   */
+  function fixName(name) {
+    var tokens = name.replace(BAD_MG, '$1 mg').split(' ');
+    var hit = findDrugIn(tokens);
+    var unsure = !hit && /^[a-z]/.test(tokens[0]);
+    if (hit) {
+      unsure = tokens.slice(hit.start, hit.end).join(' ').toUpperCase() !== hit.name.toUpperCase();
+      tokens.splice(hit.start, hit.end - hit.start, hit.name);
+    }
+    if (/^[A-Za-z]/.test(tokens[0])) {
+      var last = function () { return tokens[tokens.length - 1]; };
+      while (tokens.length > 1 && /[฀-๿]/.test(last()) && !/^(?:มก\.?|มิลลิกรัม)$/.test(last())) tokens.pop();
+    }
+    return { name: tokens.join(' '), unsure: unsure };
+  }
+
+  /**
+   * ไม่เจอชื่อด้วยวิธีอื่น → หาคำที่ตรงชื่อในรายการจากทุกบรรทัด + ความแรงในบรรทัดเดียวกันหรือบรรทัดถัดไป
+   * คืนคำตามที่อ่านได้ (fixName แก้เป็นชื่อในรายการต่อ)
+   */
+  function findListedName(lines) {
+    var strength = new RegExp(STRENGTH, 'i');
+    for (var i = 0; i < lines.length; i++) {
+      if (personal(lines[i])) continue;
+      var tokens = lines[i].split(' ');
+      var hit = findDrugIn(tokens);
+      if (!hit) continue;
+      var rest = tokens.slice(hit.end).join(' ');
+      var m = strength.exec(rest) || (lines[i + 1] && !personal(lines[i + 1]) ? strength.exec(lines[i + 1]) : null);
+      return tokens.slice(hit.start, hit.end).join(' ') + (m ? ' ' + m[0] : '');
+    }
+    return null;
+  }
+
   /**
    * ชื่อยา: บรรทัด "ชื่อยา: …" ก่อน
    * → บรรทัดที่มีความแรงยา (500 mg / 500 มก.) ตัดถึงหน่วย · บรรทัดนั้นไม่มีชื่อ ("500 MG/1 TABLET") → ต่อชื่อจากบรรทัดก่อน
    * → บรรทัดภาษาอังกฤษที่ตามด้วย Tab/Cap ("Vitamin B1-6-12 Tab") → ส่วนก่อน Tab
    * → คำอังกฤษตัวใหญ่ล้วน · ไม่มีเลย = null (กรุณาตรวจสอบ)
    */
+  /** → { name, unsure } · ไม่เจอ → name null */
   function findName(lines) {
+    var name = findNameAsRead(lines);
+    return name ? fixName(name) : { name: null, unsure: false };
+  }
+
+  function findNameAsRead(lines) {
     var i, m;
     for (i = 0; i < lines.length; i++) {
       var sm = skelMap(lines[i]);
-      m = /ชอยา\s*[:：]?\s*/.exec(sm.skel);
+      m = /[ชซส]อยา\s*[:：]?\s*/.exec(sm.skel); // OCR อ่าน "ชื่อยา" เป็น "สื่อยา" / "ซื่อยา" ได้
       if (m) {
         var v = cleanValue(lines[i].slice(sm.map[m.index + m[0].length])) || (lines[i + 1] ? cleanValue(lines[i + 1]) : '');
         if (v) return v;
       }
     }
-    var usable = lines.filter(function (line) { return !personal(line); });
+    // ฉลากโรงพยาบาลมักพิมพ์วันที่ต่อท้ายชื่อยา ("VITAMIN B COMPLEX  วันที่ 1 ต.ค.") → ใช้ส่วนก่อนวันที่
+    var named = lines.map(function (line) {
+      var b = beforeDate(line);
+      return personal(b) ? '' : b;
+    });
+    var usable = named.filter(Boolean);
     var strength = new RegExp('^(.*?' + STRENGTH + ')', 'i');
-    for (i = 0; i < lines.length; i++) {
-      if (personal(lines[i])) continue;
-      m = strength.exec(skeleton(lines[i]).replace(/มก(?!\.)/, 'มก.'));
-      if (!m || !/[A-Za-z]{2,}/.test(lines[i])) continue;
+    for (i = 0; i < named.length; i++) {
+      if (!named[i]) continue;
+      m = strength.exec(skeleton(named[i]).replace(/มก(?!\.)/, 'มก.'));
+      if (!m || !/[A-Za-z]{2,}/.test(named[i])) continue;
       var name = cleanValue(m[1]);
       if (drugWords(name).length === 0 && i > 0) {
         // "500 MG/1 TABLET" → ชื่ออยู่บรรทัดก่อน (ส่วนอักษรอังกฤษต้นบรรทัด ก่อนวันที่/ข้อมูลอื่น)
@@ -229,11 +406,23 @@
       m = /^(.*?[A-Za-z]{4,}.*?)\s*\b(?:tab|tabs|tablet|tablets|cap|caps|capsule|capsules)\b/i.exec(usable[i]);
       if (m && drugWords(m[1]).length) return cleanValue(m[1]);
     }
+    var listed = findListedName(named);
+    if (listed) return listed;
     for (i = 0; i < usable.length; i++) {
-      var words = usable[i].split(/\s+/).filter(function (w) { return /^[A-Z][A-Z-]{4,}$/.test(w) && !NAME_STOPWORDS.test(w); });
+      // คำอังกฤษตัวใหญ่ล้วน + คำสั้นที่ตามมา ("VITAMIN B COMPLEX")
+      m = /\b[A-Z][A-Z-]{4,}(?:\s+[A-Z][A-Z0-9-]*)*/.exec(usable[i]);
+      if (!m) continue;
+      var words = m[0].split(/\s+/).filter(function (w) { return !NAME_STOPWORDS.test(w); });
       if (words.length) return words.join(' ');
     }
     return null;
+  }
+
+  /** ส่วนของบรรทัดก่อนคำว่า "วันที่" / "date" (ทั้งบรรทัดถ้าไม่มี) */
+  function beforeDate(line) {
+    var sm = skelMap(line);
+    var m = /วนท|date/i.exec(sm.skel);
+    return m ? line.slice(0, sm.map[m.index]).trim() : line;
   }
 
   /** ข้อควรระวัง / ข้อห้ามใช้ — บันทึกเฉพาะเมื่อฉลากมี (BR-05) · ข้อความที่อ่านไม่เป็นคำถูกทิ้ง */
@@ -261,19 +450,23 @@
   /**
    * ข้อความ OCR → { ok: true, draft, missing[] } หรือ { ok: false, reason: 'unreadable' } (FR-02 ✗5 → เปิดฟอร์มว่าง)
    * draft.unsupported = 'prn' | 'liquid' | 'half' | null (FR-02 ✗4)
+   * draft.unsure = ['name' | 'pills'] ช่องที่ระบบแก้คำที่อ่านเพี้ยนให้ — มีค่าแต่ผู้ดูแลต้องตรวจ
    * missing = ช่องบังคับที่หาไม่เจอ → หน้าจอแสดง "กรุณาตรวจสอบ" (FR-02 ✗3, ✗10)
    */
   function parseLabel(raw) {
     var lines = normalize(raw);
     var all = compact(skeleton(lines.join('')));
     var pills = findPills(all);
+    var name = findName(lines);
     var draft = {
-      name: findName(lines),
-      pills: pills,
-      timings: findTimings(all, pills),
+      name: name.name,
+      pills: pills.count,
+      timings: findTimings(all, pills.count),
       caution: '',
       contraindication: '',
-      unsupported: findUnsupported(all)
+      unsupported: findUnsupported(all),
+      // ช่องที่มีค่าแต่ระบบแก้คำที่ OCR อ่านเพี้ยนให้ → หน้าจอเน้นให้ผู้ดูแลตรวจ (BR-04)
+      unsure: (name.unsure ? ['name'] : []).concat(pills.unsure ? ['pills'] : [])
     };
     var notes = findNotes(lines);
     draft.caution = notes.caution;
@@ -360,7 +553,8 @@
       timings: timings,
       caution: aiText(obj.caution, 300),
       contraindication: aiText(obj.contraindication, 300),
-      unsupported: AI_UNSUPPORTED.indexOf(obj.unsupported) !== -1 ? obj.unsupported : null
+      unsupported: AI_UNSUPPORTED.indexOf(obj.unsupported) !== -1 ? obj.unsupported : null,
+      unsure: []
     };
     if (!draft.name && pills === null && timings.length === 0 && !draft.unsupported) return { ok: false, reason: 'unreadable' };
     return { ok: true, draft: draft, missing: missingOf(draft) };

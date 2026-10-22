@@ -15,7 +15,7 @@
 ## คำสั่ง (Windows PowerShell ใช้ `npm.cmd`)
 - `npm test` — unit test ใน `prototype/tests/` (ไม่ต้อง install) · รันก่อนบอกว่างานเสร็จทุกครั้ง
 - `npm run lint` · `npm run check` (test + lint + ตรวจความลับ) — ต้อง `npm install` ก่อนครั้งแรก
-- เปิด prototype: เปิดไฟล์ `prototype/MedMind-Responsive/index.html` (ผู้สูงอายุ) และ `caregiver.html` (ผู้ดูแล) ในเบราว์เซอร์ — ไม่มี server
+- เปิด prototype: เปิดไฟล์ `prototype/MedMind-Responsive/role.html` แล้วเลือกบทบาท → `index.html` (ผู้สูงอายุ) / `caregiver.html` (ผู้ดูแล) ในเบราว์เซอร์ — ไม่มี server
 
 ## โครงโค้ด
 - prototype = HTML/CSS/JavaScript ล้วน ไม่มี build ไม่มี framework **ไม่มี server / ฐานข้อมูล** (เกณฑ์อาจารย์) — ข้อมูลอยู่ใน `localStorage` ผ่าน `prototype/js/core/store.js`

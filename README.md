@@ -19,7 +19,7 @@
 | M2 SRS / Requirements | SRS v2.0 ร่างแล้ว (`spec.md`): FR-01..08 (Must 5 · Should 1 · Could 2), BR-01..17, AC, NFR-01..10, Use case, Traceability — ยังรอ: Use-case diagram, แถวว่างใน AI log (§8) |
 | M2 Design | โครง: `architecture.md` (มีแค่ตาราง Module & Event), `design-system.md` (หัวข้อ), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#47), Screen Map (#48) |
 | M3 Prototype | บางส่วน: หน้าเว็บ `prototype/MedMind-Responsive/` (ผู้สูงอายุ `index.html` · ผู้ดูแล `caregiver.html`) มีจับคู่ด้วยรหัส/QR ในเบราว์เซอร์ และ**สแกนฉลากจริง** (อ่านในเบราว์เซอร์ → เติมฟอร์มเพิ่มยา) · ตรรกะ `prototype/js/logic/` (FR-02 สแกน, FR-03, FR-04, FR-05 บางข้อ) — ยังรอ: แยกไฟล์หน้าเว็บ (#46), จับคู่ครบ AC (#47), ตั้งเวลามื้อ + ฟอร์มยาตามช่องของ FR-02 (#48), ต่อหน้าเว็บเข้ากับ `reminder.js` / `confirm.js` — เตือนซ้ำ T+5/T+10, ปุ่ม "ยังไม่กิน" (#49), สถานะ + แจ้ง T+15 (#50) |
-| Automated tests | `npm test` → `prototype/tests/`: 65 เทสต์ — reminder + confirm 23 (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) · labelParser 27 + labelForm 9 (FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, NFR-09) · store 6 (BR-05) — ผ่าน 65/65 (รัน 19 ต.ค. 2569, Node 22) · CI รัน test + lint + ตรวจความลับทุก PR · ยังไม่มีเทสต์ FR-01 (#47) และยังไม่ทดสอบกับผู้ใช้ (#50) |
+| Automated tests | `npm test` → `prototype/tests/`: 80 เทสต์ — reminder + confirm 23 (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) · labelParser 35 + labelForm 10 (FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, BR-04, NFR-09 · รวมข้อความที่ OCR อ่านเพี้ยนจริง) · store 6 (BR-05) · role 6 (เลือกบทบาท, FR-01) — ผ่าน 80/80 (รัน 22 ต.ค. 2569, Node 22) · CI รัน test + lint + ตรวจความลับทุก PR · ยังไม่มีเทสต์ FR-01 (#47) และยังไม่ทดสอบกับผู้ใช้ (#50) |
 | Final Report / AI-Use Statement | ร่างแล้ว: Report §1–3, §7–10 (§8–9 บางส่วน) · AI-Use Statement สรุปจาก `spec.md` §8 — ยังรอ: §4 Design, §5 Prototype, §6 ผลทดสอบ |
 
 > README นี้จะอัปเดตเมื่อมีผลจริง ช่อง **[ ]** = ยังไม่มีข้อมูลจริง ไม่เดา
@@ -85,11 +85,14 @@ docs/
 prototype/
 ├── README.md                 # วิธีเปิด + ไฟล์ของแต่ละฟีเจอร์
 ├── MedMind-Responsive/       # หน้าเว็บ demo (Rossatorn): index.html (ผู้สูงอายุ), caregiver.html (ผู้ดูแล), styles.css, app.js, flows.js
+│                             #   + role.html (หน้าแรก: เลือกบทบาท), demo.html (ดูทั้ง 2 บทบาทพร้อมกัน) — YAR OO
 ├── css/
-│   └── scan.css              # กล่องผลสแกนในฟอร์มเพิ่มยา (YAR OO)
+│   ├── scan.css              # กล่องผลสแกนในฟอร์มเพิ่มยา (YAR OO)
+│   └── role.css              # หน้าเลือกบทบาท + ดูทั้ง 2 บทบาท (YAR OO)
 ├── js/
 │   ├── core/
-│   │   └── store.js          # ชื่อ key ใน localStorage + เวลามื้ออาหาร — ข้อมูลร่วมทุกฟีเจอร์ (PM)
+│   │   ├── store.js          # ชื่อ key ใน localStorage + เวลามื้ออาหาร — ข้อมูลร่วมทุกฟีเจอร์ (PM)
+│   │   └── role.js           # บทบาทในแท็บนี้ + กันเข้าหน้าแอปก่อนเลือกบทบาท (FR-01) (PM)
 │   ├── logic/                # ตรรกะล้วน ไม่แตะหน้าจอ — มีเทสต์ทุกไฟล์
 │   │   ├── reminder.js       # เวลาเตือน (FR-03, BR-06, BR-08) — Nichanan
 │   │   ├── confirm.js        # ยืนยัน + แจ้ง Caregiver + สถานะรายวัน (FR-04, FR-05) — Nichanan
@@ -102,6 +105,7 @@ prototype/
 │   │   └── scanner.js        # อ่านตัวหนังสือจากรูปในเบราว์เซอร์ (Tesseract.js) — YAR OO
 │   └── features/             # การทำงานบนหน้าจอของแต่ละฟีเจอร์
 │       ├── scan.js           # สแกนฉลาก → เติมฟอร์มเพิ่มยา (FR-02) — YAR OO
+│       ├── roleSelect.js     # ปุ่มเลือกบทบาทในหน้า role.html / demo.html — YAR OO
 │       └── <ฟีเจอร์>.js       # (ยังไม่มี) pairing #47 (Takkan) · medicine #46 #48 (Rossatorn) · reminder #49 (Nichanan) · caregiverStatus #50 (Suchitra)
 └── tests/                    # npm test — ชื่อไฟล์ตามไฟล์ใน js/logic/ และ js/core/
     ├── reminder.confirm.test.js
@@ -126,10 +130,11 @@ CLAUDE.md                     # คำสั่งสำหรับ Claude Code
 ### 1. วิธีเปิดดู Prototype ในเว็บเบราว์เซอร์ (Clickable Prototype)
 Prototype เป็น HTML/CSS/JS เปิดในเบราว์เซอร์ได้โดยตรง **ไม่ต้องมี server หรือฐานข้อมูล** (ข้อมูลเป็นข้อมูลจำลอง; การแจ้งเตือนและเวลาเป็นการจำลอง)
 
-1. เปิดผ่านลิงก์ GitHub Pages: **[ลิงก์ เมื่อมี]**
-2. หรือดาวน์โหลด repo แล้วเปิดไฟล์ด้วยเบราว์เซอร์:
-   - ผู้สูงอายุ: [`prototype/MedMind-Responsive/index.html`](prototype/MedMind-Responsive/index.html)
-   - ผู้ดูแล: [`prototype/MedMind-Responsive/caregiver.html`](prototype/MedMind-Responsive/caregiver.html) — เปิดคนละแท็บในเบราว์เซอร์เดียวกัน = จำลองมือถือ 2 เครื่อง (ใช้ข้อมูลชุดเดียวกันใน localStorage)
+1. เปิดผ่านลิงก์ GitHub Pages: **[ลิงก์ เมื่อเปิด Pages — หน้าแรกของ repo จะพาไปหน้าเลือกบทบาท]**
+2. หรือดาวน์โหลด repo แล้วเปิด [`index.html`](index.html) (หรือ [`prototype/MedMind-Responsive/role.html`](prototype/MedMind-Responsive/role.html)) ด้วยเบราว์เซอร์ → **เลือกบทบาทก่อนเข้าแอป**:
+   - **ผู้สูงอายุ (Senior)** → หน้า `index.html` · **ลูกหลาน / ผู้ดูแล (Caregiver)** → หน้า `caregiver.html` (เปิดหน้าแอปตรง ๆ ก่อนเลือกบทบาทจะถูกพากลับหน้าเลือกบทบาท)
+   - จำลองมือถือ 2 เครื่อง: เปิด 2 แท็บในเบราว์เซอร์เดียวกัน เลือกคนละบทบาท (ใช้ข้อมูลชุดเดียวกันใน localStorage) · หรือกด "ดูทั้ง 2 บทบาทพร้อมกัน" ([`demo.html`](prototype/MedMind-Responsive/demo.html)) สำหรับนำเสนอ
+   - เปลี่ยนบทบาท: ปุ่มลูกศรสลับด้านบนของแอป
 3. สแกนฉลาก (FR-02): หน้าผู้ดูแล → ยา → เพิ่มรายการยา → ถ่ายภาพ/เลือกรูปฉลาก หรือเลือก "ฉลากตัวอย่าง" (ใช้ได้แม้ไม่มีเน็ต)
    - การอ่านรูปทำในเบราว์เซอร์ รูปไม่ถูกส่งออก · ครั้งแรกต้องต่ออินเทอร์เน็ตเพื่อโหลดตัวอ่าน (~4 MB)
 
@@ -140,7 +145,7 @@ npm test             # unit test ทั้งหมดใน prototype/tests/ (�
 npm install          # ครั้งแรกครั้งเดียว สำหรับคำสั่งด้านล่าง
 npm run check        # test + ตรวจคุณภาพโค้ด (ESLint) + ตรวจว่าไม่มีรหัสลับ — รันก่อน push
 ```
-ผลลัพธ์ (รัน 19 ต.ค. 2569, Node 22): **ผ่าน 65 / ไม่ผ่าน 0** — ครอบคลุม BR-05, BR-06, FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ, NFR-09 · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
+ผลลัพธ์ (รัน 22 ต.ค. 2569, Node 22): **ผ่าน 80 / ไม่ผ่าน 0** — ครอบคลุม BR-05, BR-06, FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ, NFR-09 · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
 
 ---
 
@@ -150,7 +155,7 @@ npm run check        # test + ตรวจคุณภาพโค้ด (ESLint
 - ผล OCR ต้องผ่านการตรวจของ Caregiver ทุกครั้งก่อนบันทึก
 - ระบบไม่วินิจฉัย ไม่แนะนำยา และไม่เปลี่ยนวิธีใช้ยา
 - ระบบเป็นเว็บแอป — เตือน Senior และแจ้ง Caregiver เฉพาะขณะเปิดหน้าเว็บค้างไว้ (SRS §2.2)
-- Prototype ไม่มี backend / ฐานข้อมูล — ข้อมูลอยู่ใน localStorage ของเบราว์เซอร์ · การแจ้งเตือนและเวลาเป็นการจำลอง · การอ่านฉลากทำจริงในเบราว์เซอร์ (Tesseract.js) แต่อ่านภาษาไทยจากรูปถ่ายผิดได้บ่อย ผู้ดูแลต้องตรวจทุกช่อง · ยังไม่ได้วัด NFR-08 กับฉลากจริง 20 ใบ
+- Prototype ไม่มี backend / ฐานข้อมูล — ข้อมูลอยู่ใน localStorage ของเบราว์เซอร์ · การแจ้งเตือนและเวลาเป็นการจำลอง · การอ่านฉลากทำจริงในเบราว์เซอร์ (Tesseract.js) ยังอ่านผิดได้ ผู้ดูแลต้องตรวจทุกช่อง — วัดกับฉลากจำลอง 72 รูป (ถ่ายเอียง เบลอ เงา หมึกจาง ข้อมูลผู้ป่วยสมมติ) ไม่ใช่ฉลากจริง · ยังไม่ได้วัด NFR-08 กับฉลากจริง 20 ใบ (#51)
 
 ---
 
@@ -158,7 +163,7 @@ npm run check        # test + ตรวจคุณภาพโค้ด (ESLint
 
 | ชื่อ–นามสกุล | GitHub | บทบาท | ฟีเจอร์ที่เขียนโค้ด | ไฟล์หลัก |
 |---|---|---|---|---|
-| YAR OO | [yaroo393-png](https://github.com/yaroo393-png) | Project Manager | **FR-02 สแกนฉลาก** + ข้อมูลร่วม (`store.js`), CI · รวมเล่มรายงาน (#51) | `js/logic/labelParser.js`, `labelForm.js` · `js/services/scanner.js` · `js/features/scan.js` · `js/core/store.js` |
+| YAR OO | [yaroo393-png](https://github.com/yaroo393-png) | Project Manager | **FR-02 สแกนฉลาก** + ข้อมูลร่วม (`store.js`), หน้าเลือกบทบาท, CI · รวมเล่มรายงาน (#51) | `js/logic/labelParser.js`, `labelForm.js` · `js/services/scanner.js` · `js/features/scan.js`, `roleSelect.js` · `js/core/store.js`, `role.js` · `role.html`, `demo.html` |
 | Takkan Khanlui | [V31311](https://github.com/V31311) | System Designer | **FR-01 จับคู่** · Design doc (#47) | `js/logic/pairing.js` · `js/features/pairing.js` |
 | Rossatorn Sangkaew | [IDK-SleepyBro](https://github.com/IDK-SleepyBro) | UX/UI Designer | **FR-02 จัดการยา** (เวลามื้อ, ฟอร์มยา) · หน้าเว็บ + Design system (#46, #48) | `js/logic/medication.js` · `js/features/medicine.js` · หน้าเว็บ demo |
 | Nichanan Lalua | [KaidangSuk](https://github.com/KaidangSuk) | Prototype Developer | **FR-03 เตือน + FR-04 ยืนยัน** (#49) | `js/logic/reminder.js`, `confirm.js` · `js/features/reminder.js` |
