@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f2">
+  <title>MedMind — ดูทั้ง 2 บทบาท</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../css/role.css">
+</head>
+<body>
+  <!-- สำหรับนำเสนอ: มือถือ 2 เครื่องในจอเดียว ใช้ข้อมูลชุดเดียวกัน (localStorage) (YAR OO) · Covers: FR-01–05 -->
+  <main class="demo-page">
+    <header class="demo-bar">
+      <a class="secondary-button" href="role.html" data-text="back">← เลือกบทบาท</a>
+      <span class="covers-tag">Covers: FR-01–05</span>
+      <span class="role-note" data-text="demoNote">2 จอนี้ใช้ข้อมูลชุดเดียวกัน — กดในจอหนึ่ง อีกจอเปลี่ยนตาม</span>
+    </header>
+    <div class="demo-phones">
+      <section class="demo-phone">
+        <h2>ผู้สูงอายุ (Senior)</h2>
+        <iframe src="index.html?as=senior" title="ผู้สูงอายุ (Senior)"></iframe>
+      </section>
+      <section class="demo-phone">
+        <h2>ลูกหลาน / ผู้ดูแล (Caregiver)</h2>
+        <iframe src="caregiver.html?as=caregiver" title="ลูกหลาน / ผู้ดูแล (Caregiver)" allow="camera"></iframe>
+      </section>
+    </div>
+  </main>
+
+  <script src="../js/core/role.js"></script>
+  <script src="../js/features/roleSelect.js"></script>
+</body>
+</html>
