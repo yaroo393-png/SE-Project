@@ -130,7 +130,7 @@ CLAUDE.md                     # คำสั่งสำหรับ Claude Code
 ### 1. วิธีเปิดดู Prototype ในเว็บเบราว์เซอร์ (Clickable Prototype)
 Prototype เป็น HTML/CSS/JS เปิดในเบราว์เซอร์ได้โดยตรง **ไม่ต้องมี server หรือฐานข้อมูล** (ข้อมูลเป็นข้อมูลจำลอง; การแจ้งเตือนและเวลาเป็นการจำลอง)
 
-1. เปิดผ่านลิงก์ GitHub Pages: **[ลิงก์ เมื่อเปิด Pages — หน้าแรกของ repo จะพาไปหน้าเลือกบทบาท]**
+1. เปิดผ่านลิงก์ GitHub Pages: **<https://yaroo393-png.github.io/SE-Project/>** — เปิดในมือถือได้ หน้าแรกพาไปหน้าเลือกบทบาท
 2. หรือดาวน์โหลด repo แล้วเปิด [`index.html`](index.html) (หรือ [`prototype/MedMind-Responsive/role.html`](prototype/MedMind-Responsive/role.html)) ด้วยเบราว์เซอร์ → **เลือกบทบาทก่อนเข้าแอป**:
    - **ผู้สูงอายุ (Senior)** → หน้า `index.html` · **ลูกหลาน / ผู้ดูแล (Caregiver)** → หน้า `caregiver.html` (เปิดหน้าแอปตรง ๆ ก่อนเลือกบทบาทจะถูกพากลับหน้าเลือกบทบาท)
    - จำลองมือถือ 2 เครื่อง: เปิด 2 แท็บในเบราว์เซอร์เดียวกัน เลือกคนละบทบาท (ใช้ข้อมูลชุดเดียวกันใน localStorage) · หรือกด "ดูทั้ง 2 บทบาทพร้อมกัน" ([`demo.html`](prototype/MedMind-Responsive/demo.html)) สำหรับนำเสนอ

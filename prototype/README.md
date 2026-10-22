@@ -5,6 +5,8 @@ Clickable prototype (HTML/CSS/JS) เปิดในเบราว์เซอ�
 > สถานะ: **บางส่วน** — ยังไม่ครบ AC ของ FR-01..05 และหน้าเว็บยังไม่ได้เรียกใช้ `js/logic/reminder.js` / `confirm.js` (#49, #50) · สแกนฉลาก (FR-02) ใช้ได้แล้วในหน้าผู้ดูแล
 
 ## วิธีเปิด
+ออนไลน์ (GitHub Pages, เปิดในมือถือได้): <https://yaroo393-png.github.io/SE-Project/> · หรือเปิดไฟล์ในเครื่องตามขั้นตอนด้านล่าง
+
 1. เปิด [`MedMind-Responsive/role.html`](MedMind-Responsive/role.html) (หรือ `index.html` ชั้นนอกสุดของ repo) → **เลือกบทบาทก่อนเข้าแอป**
    - **ผู้สูงอายุ (Senior)** → `index.html` · **ลูกหลาน / ผู้ดูแล (Caregiver)** → `caregiver.html` — เปิด 2 หน้านี้ตรง ๆ ก่อนเลือกบทบาทจะถูกพากลับหน้าเลือกบทบาท
    - บทบาทจำแยกต่อแท็บ: เปิด 2 แท็บในเบราว์เซอร์เดียวกัน เลือกคนละบทบาท = จำลองมือถือ 2 เครื่อง · หรือ [`demo.html`](MedMind-Responsive/demo.html) ดูทั้ง 2 บทบาทในจอเดียว
