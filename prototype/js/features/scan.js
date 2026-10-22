@@ -83,7 +83,7 @@
     }
     blocked = false;
     Object.keys(result.fields).forEach(function (k) { setField(k, result.fields[k]); });
-    result.missing.forEach(function (k) {
+    result.missing.concat(result.unsure).forEach(function (k) {
       var el = form.elements[k];
       if (el) el.classList.add('needs-review');
     });
@@ -93,6 +93,9 @@
     if (result.missing.length) {
       lines.push('กรุณาตรวจสอบ: ' + result.missing.map(function (k) { return M.labelForm.FIELD_LABELS[k]; }).join(', ') + ' (ระบบไม่เดาช่องที่อ่านไม่ได้)');
     }
+    if (result.unsure.length) {
+      lines.push('อ่านได้ไม่ชัด ระบบแก้ให้แล้วแต่ไม่แน่ใจ — ตรวจให้ตรงฉลาก: ' + result.unsure.map(function (k) { return M.labelForm.FIELD_LABELS[k]; }).join(', '));
+    }
     if (result.timings.length > 1) {
       lines.push('ฉลากนี้มี ' + result.timings.length + ' มื้อ: ' + result.timings.map(esc).join(' · ') + ' — ฟอร์มนี้บันทึกได้ทีละมื้อ ให้บันทึกมื้อแรกแล้วเพิ่มมื้อที่เหลือ');
     } else if (result.timings.length === 1) {
@@ -101,7 +104,7 @@
     var notes = [parsed.draft.caution, parsed.draft.contraindication].filter(Boolean);
     if (notes.length) lines.push('ข้อควรระวัง / ข้อห้ามใช้บนฉลาก: ' + notes.map(esc).join(' · '));
     if (meals.isDefault) lines.push('<small>เวลาคำนวณจากเวลามื้อเริ่มต้น (เช้า ' + meals.morning + ', กลางวัน ' + meals.noon + ', เย็น ' + meals.evening + ', เข้านอน ' + meals.bedtime + ')</small>');
-    say(lines.join('<br>'), result.missing.length ? 'warn' : 'ok');
+    say(lines.join('<br>'), result.missing.length || result.unsure.length ? 'warn' : 'ok');
   }
 
   /** รูปจริง → Tesseract อ่านในเครื่อง → labelParser */
