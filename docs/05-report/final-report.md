@@ -172,6 +172,6 @@ FR-06–08 (Should/Could) อยู่นอก MVP — ดู `spec.md` §7
 ## 10. ลิงก์
 
 - Repo: https://github.com/yaroo393-png/SE-Project
-- Demo (prototype): **[ใส่ลิงก์เมื่อมี]**
+- Demo (prototype): https://yaroo393-png.github.io/SE-Project/ (GitHub Pages — เริ่มที่หน้าเลือกบทบาท)
 - วิดีโอ 2–3 นาที (ถ้ามี): **[ใส่ลิงก์เมื่อมี]**
 - เอกสาร: [`charter.md`](../01-charter/charter.md) · [`spec.md`](../02-requirements/spec.md) · [`backlog.md`](../02-requirements/backlog.md) · [`architecture.md`](../03-design/architecture.md) · [`design-system.md`](../03-design/design-system.md)
