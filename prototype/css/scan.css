@@ -13,6 +13,18 @@
 .scan-sample-label select { min-height: 44px; }
 #medicine-form .needs-review { border-color: #a3261d !important; box-shadow: 0 0 0 2px rgba(163, 38, 29, .25); }
 
+/* ดูข้อความที่อ่านได้ (ไม่บันทึก) */
+.scan-raw { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.scan-raw > summary { min-height: 44px; display: flex; align-items: center; padding: 0 12px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--green); }
+.scan-raw[open] > summary { border-bottom: 1px solid var(--line); }
+.scan-raw-note { margin: 10px 12px 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.scan-raw-text {
+  margin: 10px 12px; padding: 10px; max-height: 220px; overflow: auto;
+  background: var(--surface-2); border-radius: 8px; color: var(--ink);
+  font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.scan-raw-copy { margin: 0 12px 12px; min-height: 44px; }
+
 body[data-theme="dark"] .scan-status.info { background: #182a40; color: #a9c8f5; }
 body[data-theme="dark"] .scan-status.ok { background: #173a29; color: #7fd9a4; }
 body[data-theme="dark"] .scan-status.warn { background: #3a2717; color: #f3b98a; }

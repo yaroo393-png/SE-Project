@@ -6,6 +6,7 @@
  * หลักการ: ดึงเฉพาะสิ่งที่ฉลากเขียนไว้ตรง ๆ — หาไม่เจอ = null ("กรุณาตรวจสอบ") ระบบไม่เดา (BR-04, BR-06)
  *   เช่น "วันละ 3 ครั้ง" ไม่มีคำว่า เช้า/กลางวัน/เย็น → ไม่เติมมื้อให้เอง
  * NFR-09: ไม่ดึงชื่อผู้ป่วย, HN, วันเกิด, เบอร์โทร และไม่คืนข้อความดิบ — ผู้เรียกต้องทิ้งรูปและข้อความ OCR หลังได้ร่าง
+ *   (redact() คืนข้อความที่ซ่อนบรรทัดผู้ป่วยแล้ว ไว้แสดงบนจอให้ผู้ดูแลเทียบเท่านั้น ห้ามเก็บ)
  * ร่างที่ได้ยังไม่ถูกบันทึก ต้องให้ Caregiver ตรวจและกดบันทึกผ่าน medication.saveMedication() เสมอ (NFR-06)
  */
 (function (root, factory) {
@@ -36,8 +37,25 @@
   ];
   /** คำบอกเวลา: ก่อนอาหาร / หลังอาหาร / ก่อนนอน — ใช้แบ่งข้อความเป็นช่วง ๆ */
   var TIMING_RE = /กอนอาหาร|หลงอาหาร|กอนนอน/g;
-  var PILL_UNIT = '(?:เมด|แคปซล)';
+  // "เม็ด" ที่ OCR อ่านเพี้ยนบ่อย: เผ็ด / เบ็ด / เป็ด / เมิด (โครงเป็น เผด / เบด / เปด / เมด)
+  var PILL_UNIT = '(?:เ[มผบป]ด|แคปซล)';
   var MAX_PILLS = 8;
+  /** จำนวนที่จ่าย ("# 30 เม็ด", "จำนวน 30 เม็ด") — ไม่ใช่จำนวนเม็ดต่อครั้ง */
+  var DISPENSED_BEFORE = /(?:#|จำนวน|รวม|[x×])$/;
+  /**
+   * ตารางสีข้างฉลาก ("เช้า 2 เม็ด / เที่ยง - / เย็น 1 เม็ด / ก่อนนอน -") — OCR อ่านเป็นข้อความคอลัมน์ขวา
+   * ห่างจากข้อความวิธีใช้หลายช่องว่าง จึงแยกคอลัมน์ด้วยช่องว่างยาว แล้วอ่านทีละช่อง
+   */
+  var COLUMN_GAP = /[ \t]{5,}/;
+  var TABLE_SLOTS = [
+    { slot: 'morning', re: 'เชา|เขา' },
+    { slot: 'noon', re: 'กลางวน|เทยง' },
+    { slot: 'evening', re: 'เยน' },
+    { slot: 'bedtime', re: 'กอนนอน' }
+  ];
+  var MEALS = ['morning', 'noon', 'evening'];
+  var CELL_RE = new RegExp('^(?:' + TABLE_SLOTS.map(function (t) { return '(' + t.re + ')'; }).join('|') + ')' +
+    '(?:(\\d{1,2}|หนง|สอง|สาม)' + PILL_UNIT + '|([-–—=~_]+))?');
   /** BR-07: ยาที่ MVP ไม่รองรับ */
   var UNSUPPORTED_RE = {
     prn: /เมอมอาการ|เวลามอาการ|เมอปวด|เวลาปวด|เมอมไข|เวลามไข|เมอจำเปน|prn/,
@@ -150,34 +168,145 @@
     return n >= 1 ? n : null;
   }
 
-  /** "ครั้งละ 1 เม็ด" / "ครั้งละหนึ่งแคปซูล" → { count: 1, unsure: false } · OCR อ่าน "ครั้งละ | เม็ด" → unsure · ไม่เจอ → count null */
-  function findPills(all) {
-    var m = new RegExp('(?:ครงละ|รบประทาน|กน)(\\d{1,2}|หนง|สอง|สาม|' + ONE_LIKE + ')' + PILL_UNIT).exec(all);
-    var count = m ? toCount(m[1]) : null;
-    // เกิน MAX_PILLS ไม่น่าใช่จำนวนเม็ดต่อครั้ง (เช่น OCR อ่าน "1/2 เม็ด" เป็น "12 เม็ด") → ปล่อยว่าง ไม่เดา
-    if (count === null || count > MAX_PILLS) return { count: null, unsure: false };
-    return { count: count, unsure: new RegExp('^' + ONE_LIKE + '$').test(m[1]) };
+  /** "12 เม็ด" ที่ตำแหน่ง index เป็นจำนวนที่จ่าย ("# 30 เม็ด") หรือเกินจำนวนต่อครั้ง → ไม่ใช่จำนวนเม็ดต่อครั้ง */
+  function perDose(text, index, count) {
+    return count !== null && count <= MAX_PILLS && !DISPENSED_BEFORE.test(text.slice(Math.max(0, index - 6), index));
   }
 
-  /** จำนวนเม็ดตัวสุดท้ายในช่วงข้อความ ("และ 1 เม็ด หลังอาหารเย็น") */
+  /**
+   * "ครั้งละ 1 เม็ด" / "ทาน 1 เม็ด" / "ทีละ 1 เม็ด" / "ครั้งละหนึ่งแคปซูล" → { count: 1, unsure: false } · OCR อ่าน "ครั้งละ | เม็ด" → unsure
+   * ฉลากที่ไม่มีคำนำ ("1 เม็ด วันละ 2 ครั้ง") → ใช้ "N เม็ด" ตัวแรกที่ไม่ใช่จำนวนที่จ่าย แต่ unsure ให้ผู้ดูแลตรวจ
+   * ไม่เจอ → count null
+   */
+  function findPills(all) {
+    var m = new RegExp('(?:ครงละ|ทละ|ทาน|กน)(\\d{1,2}|หนง|สอง|สาม|' + ONE_LIKE + ')' + PILL_UNIT).exec(all);
+    if (m) {
+      var count = toCount(m[1]);
+      // เกิน MAX_PILLS ไม่น่าใช่จำนวนเม็ดต่อครั้ง (เช่น OCR อ่าน "1/2 เม็ด" เป็น "12 เม็ด") → ปล่อยว่าง ไม่เดา
+      if (count === null || count > MAX_PILLS) return { count: null, unsure: false };
+      return { count: count, unsure: new RegExp('^' + ONE_LIKE + '$').test(m[1]) };
+    }
+    var re = new RegExp('(\\d{1,2}|หนง|สอง|สาม)' + PILL_UNIT, 'g');
+    while ((m = re.exec(all)) !== null) {
+      // "1/2 เม็ด" = ยาครึ่งเม็ด (BR-07) · "1-2 เม็ด" = ช่วง ไม่รู้ว่ากี่เม็ด → ข้าม ไม่เดา
+      if (/[\d/\-–]/.test(all[m.index - 1] || '')) continue;
+      if (perDose(all, m.index, toCount(m[1]))) return { count: toCount(m[1]), unsure: true };
+    }
+    return { count: null, unsure: false };
+  }
+
+  /** จำนวนเม็ดตัวสุดท้ายในช่วงข้อความ ("และ 1 เม็ด หลังอาหารเย็น") · ไม่นับจำนวนที่จ่าย ("# 30 เม็ด") */
   function lastCount(text) {
     var re = new RegExp('(\\d{1,2}|หนง|สอง|สาม)' + PILL_UNIT, 'g');
     var m;
     var last = null;
-    while ((m = re.exec(text)) !== null) last = toCount(m[1]);
+    while ((m = re.exec(text)) !== null) {
+      if (perDose(text, m.index, toCount(m[1]))) last = toCount(m[1]);
+    }
     return last;
   }
 
-  function slotsIn(text) {
-    return SLOT_WORDS.filter(function (w) { return w.re.test(text); }).map(function (w) { return w.slot; });
+  /**
+   * อ่านช่องตารางในส่วนหนึ่งของบรรทัด → [{ slot, count }] หรือ null ถ้าไม่ใช่ช่องตาราง
+   * count: จำนวนเม็ด · 0 = ขีด "-" (ไม่มียามื้อนี้) · null = อ่านค่าไม่ออก
+   * first = ส่วนแรกของบรรทัด: คำบอกมื้อเปล่า ๆ ("ก่อนนอน") ถือเป็นวิธีใช้ ไม่ใช่ช่องตาราง
+   */
+  function readCells(segment, first) {
+    var rest = compact(skeleton(segment)).replace(/^[^\u0E01-\u0E4F]{0,3}/, '');
+    var cells = [];
+    var m;
+    while (rest && (m = CELL_RE.exec(rest)) !== null) {
+      var slot = null;
+      for (var i = 0; i < TABLE_SLOTS.length; i++) if (m[i + 1]) slot = TABLE_SLOTS[i].slot;
+      rest = rest.slice(m[0].length);
+      // "เช้า-เย็น" = กินทั้งเช้าและเย็น ไม่ใช่ "เช้า: ไม่มี" → ไม่ใช่ตาราง
+      if (m[6] && CELL_RE.test(rest)) return null;
+      cells.push({ slot: slot, count: m[5] ? toCount(m[5]) : m[6] ? 0 : null });
+    }
+    // เหลือเศษได้ไม่เกิน 3 ตัว (OCR อ่านขอบตาราง/สีพื้นเป็นอักษร) · ส่วนแรกของบรรทัดต้องมีค่าในช่อง
+    if (!cells.length || rest.length > 3) return null;
+    if (first && cells.every(function (c) { return c.count === null; })) return null;
+    return cells;
   }
 
-  /** "ก่อนอาหาร 30 นาที" → 30 · "ครึ่งชั่วโมง" → 30 · "1 ชั่วโมง" → 60 · ไม่ระบุ → null (FR-02 ✗10) */
+  /**
+   * ข้อความดิบ → { text: ข้อความวิธีใช้ที่ตัดช่องตารางออกแล้ว, cells: { morning: 2, noon: 0, evening: null, ... } }
+   * ช่องที่ไม่เจอเลย = ไม่มี key
+   */
+  function splitTable(raw) {
+    var cells = {};
+    var inline = false;
+    var text = String(raw || '').split(/\r?\n/).map(function (line) {
+      return line.split(COLUMN_GAP).filter(function (seg, i) {
+        var found = seg.trim() && readCells(normalize(seg).join(' '), i === 0);
+        if (!found) return true;
+        // หลายช่องในบรรทัดเดียว ("เช้า 1 เม็ด เย็น 1 เม็ด") = เขียนวิธีใช้เรียงในบรรทัด มื้อที่ไม่เขียน = ไม่กิน
+        if (i === 0 && found.length >= 2) inline = true;
+        found.forEach(function (c) {
+          // ช่องเดียวกันอ่านได้ 2 ค่าไม่ตรงกัน → ถือว่าอ่านไม่ออก
+          cells[c.slot] = c.slot in cells && cells[c.slot] !== c.count ? null : c.count;
+        });
+        return false;
+      }).join('   ');
+    }).join('\n');
+    if (inline) MEALS.forEach(function (s) { if (!(s in cells)) cells[s] = 0; });
+    return { text: text, cells: cells };
+  }
+
+  /**
+   * เติมจากตารางข้างฉลาก (BR-06: ชนิดมื้อ ก่อน/หลังอาหาร ต้องมาจากข้อความบนฉลาก — ตารางบอกแค่มื้อกับจำนวนเม็ด)
+   *  - ข้อความบอก "หลังอาหาร" แต่ไม่บอกมื้อ + ตารางอ่านครบทั้งเช้า/กลางวัน/เย็น → แยกเป็นรายมื้อตามตาราง
+   *  - ตารางมีเม็ดตอนก่อนนอน → เพิ่มก่อนนอน · ไม่มีจำนวนเม็ดในข้อความ → ใช้จำนวนในตาราง
+   *  - จำนวนเม็ดรายมื้อต่างจากค่าหลัก → timing.pills
+   */
+  function applyTable(timings, pills, cells) {
+    var counted = MEALS.concat('bedtime').filter(function (s) { return cells[s] > 0; });
+    if (!counted.length) return { timings: timings, pills: pills.count, unsure: pills.unsure };
+    var main = pills.count !== null ? pills.count : cells[counted[0]];
+    // ข้อความกับตารางบอกจำนวนไม่ตรงกัน = มีจุดที่ OCR อ่านผิด → ให้ผู้ดูแลตรวจ
+    var unsure = pills.unsure || (pills.count !== null && counted.some(function (s) { return cells[s] !== pills.count; }));
+    var out = timings;
+    var typed = timings.filter(function (t) { return t.type !== 'bedtime'; });
+    var allKnown = MEALS.every(function (s) { return typeof cells[s] === 'number'; });
+    var oneType = typed.length > 0 && typed.every(function (t) { return t.slot === null && t.type === typed[0].type; });
+    if (allKnown && oneType && MEALS.some(function (s) { return cells[s] > 0; })) {
+      out = MEALS.filter(function (s) { return cells[s] > 0; }).map(function (s) {
+        return { type: typed[0].type, slot: s, minutesBefore: typed[0].minutesBefore };
+      }).concat(timings.filter(function (t) { return t.type === 'bedtime'; }));
+    }
+    if (cells.bedtime > 0 && !out.some(function (t) { return t.type === 'bedtime'; })) {
+      out = out.concat({ type: 'bedtime', slot: null, minutesBefore: null });
+    }
+    out.forEach(function (t) {
+      var n = cells[t.type === 'bedtime' ? 'bedtime' : t.slot];
+      if (n > 0 && n !== main && t.pills === undefined) t.pills = n;
+    });
+    return { timings: out, pills: main, unsure: unsure };
+  }
+
+  /** มื้อที่เขียนไว้ในช่วงข้อความ · "เที่ยง -" (ช่องตารางที่หลุดมาในข้อความ) = ไม่มียามื้อนี้ · "เช้า-เย็น" = ทั้ง 2 มื้อ */
+  function slotsIn(text) {
+    return SLOT_WORDS.filter(function (w) {
+      var re = new RegExp(w.re.source, 'g');
+      var m;
+      while ((m = re.exec(text)) !== null) {
+        var rest = text.slice(m.index + m[0].length);
+        if (!/^[-–—=~]/.test(rest) || SLOT_WORDS.some(function (o) { return new RegExp('^[-–—=~]+(?:' + o.re.source + ')').test(rest); })) return true;
+      }
+      return false;
+    }).map(function (w) { return w.slot; });
+  }
+
+  /** "หลังอาหาร 3 มื้อ" / "3 เวลา" / "ทุกมื้อ" = ครบทั้ง เช้า กลางวัน เย็น (มีแค่ 3 มื้อ จึงไม่ใช่การเดา) · "วันละ 3 ครั้ง" ไม่นับ */
+  var ALL_MEALS_RE = /3(?:มอ|เวลา)|ทกมอ/;
+
+  /** "ก่อนอาหาร 30 นาที" / "30 น." → 30 · "ครึ่งชั่วโมง" → 30 · "1 ชั่วโมง" / "1 ชม." → 60 · ไม่ระบุ → null (FR-02 ✗10) */
   function minutesIn(text) {
-    var m = /(\d{1,3})นาท/.exec(text);
+    // ไม่นับเวลานาฬิกา ("07.30 น.")
+    var m = /(?:^|[^\d.:])(\d{1,3})(?:นาท|น\.)/.exec(text);
     if (m) return Number(m[1]) || null;
-    if (/ครงชวโมง/.test(text)) return 30;
-    m = /(\d)ชวโมง/.exec(text);
+    if (/ครงชวโมง|ครงชม\./.test(text)) return 30;
+    m = /(\d)(?:ชวโมง|ชม\.?)/.exec(text);
     if (m) return Number(m[1]) * 60 || null;
     return null;
   }
@@ -215,7 +344,7 @@
       var count = own !== null && pills !== null && own !== pills ? own : null;
       prevEnd = hit.end;
       if (hit.word === 'กอนนอน') {
-        if (/^[-–]/.test(all.slice(hit.end))) return; // ตารางข้างฉลาก "ก่อนนอน -" = ไม่มียามื้อนี้
+        if (/^[-–—=~]/.test(all.slice(hit.end))) return; // ตารางข้างฉลาก "ก่อนนอน -" = ไม่มียามื้อนี้
         push({ type: 'bedtime', slot: null, minutesBefore: null, pills: count });
         freeFrom = hit.end;
         return;
@@ -228,6 +357,8 @@
       var slots = slotsIn(after);
       freeFrom = slots.length ? afterEnd : hit.end;
       if (slots.length === 0) slots = slotsIn(before);
+      if (slots.length === 0 && (new RegExp('^(?:' + ALL_MEALS_RE.source + ')').test(after) ||
+        new RegExp('(?:' + ALL_MEALS_RE.source + ')$').test(before))) slots = MEALS;
       var minutes = type === 'before' ? minutesIn(after) : null;
       if (slots.length === 0) slots = [null];
       slots.forEach(function (slot) { push({ type: type, slot: slot, minutesBefore: minutes, pills: count }); });
@@ -456,17 +587,21 @@
   function parseLabel(raw) {
     var lines = normalize(raw);
     var all = compact(skeleton(lines.join('')));
-    var pills = findPills(all);
+    // จำนวนเม็ด/มื้ออ่านจากข้อความวิธีใช้ที่ตัดตารางข้างฉลากออกแล้ว แล้วค่อยเติมจากตาราง
+    var table = splitTable(raw);
+    var text = compact(skeleton(normalize(table.text).join('')));
+    var pills = findPills(text);
+    var dose = applyTable(findTimings(text, pills.count), pills, table.cells);
     var name = findName(lines);
     var draft = {
       name: name.name,
-      pills: pills.count,
-      timings: findTimings(all, pills.count),
+      pills: dose.pills,
+      timings: dose.timings,
       caution: '',
       contraindication: '',
       unsupported: findUnsupported(all),
-      // ช่องที่มีค่าแต่ระบบแก้คำที่ OCR อ่านเพี้ยนให้ → หน้าจอเน้นให้ผู้ดูแลตรวจ (BR-04)
-      unsure: (name.unsure ? ['name'] : []).concat(pills.unsure ? ['pills'] : [])
+      // ช่องที่มีค่าแต่ระบบแก้คำที่ OCR อ่านเพี้ยนให้ / เดาจากบริบท → หน้าจอเน้นให้ผู้ดูแลตรวจ (BR-04)
+      unsure: (name.unsure ? ['name'] : []).concat(dose.unsure ? ['pills'] : [])
     };
     var notes = findNotes(lines);
     draft.caution = notes.caution;
@@ -489,6 +624,19 @@
       if (t.type === 'before' && !t.minutesBefore) missing.push('timing.' + i + '.minutesBefore');
     });
     return missing;
+  }
+
+  /**
+   * ข้อความ OCR สำหรับแสดงให้ผู้ดูแลดูเท่านั้น (ไม่เก็บ): ซ่อนส่วนที่เป็นข้อมูลผู้ป่วย/สถานพยาบาล และเลขยาว ๆ (HN, เบอร์โทร) — NFR-09
+   * ชื่อผู้ป่วยที่ไม่มีคำนำหน้า (นาย/นาง) ระบบจับไม่ได้ → หน้าจอต้องเตือนให้ลบเองก่อนส่งต่อ
+   */
+  function redact(raw) {
+    return String(raw || '').split(/\r?\n/).map(function (line) {
+      return line.split(COLUMN_GAP).map(function (seg) {
+        if (!seg.trim()) return seg;
+        return personal(seg) ? '[ซ่อนข้อมูลผู้ป่วย]' : seg.replace(/[\d๐-๙][\d๐-๙ -]{4,}[\d๐-๙]/g, '•••');
+      }).join('     ');
+    }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
   }
 
   // ---------- ผลจาก AI (Gemini) ----------
@@ -563,6 +711,7 @@
   return {
     normalize: normalize,
     parseLabel: parseLabel,
+    redact: redact,
     parseAIText: parseAIText,
     fromAI: fromAI
   };

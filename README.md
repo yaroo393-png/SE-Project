@@ -19,7 +19,7 @@
 | M2 SRS / Requirements | SRS v2.0 ร่างแล้ว (`spec.md`): FR-01..08 (Must 5 · Should 1 · Could 2), BR-01..17, AC, NFR-01..10, Use case, Traceability — ยังรอ: Use-case diagram, แถวว่างใน AI log (§8) |
 | M2 Design | โครง: `architecture.md` (มีแค่ตาราง Module & Event), `design-system.md` (หัวข้อ), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#47), Screen Map (#48) |
 | M3 Prototype | บางส่วน: หน้าเว็บ `prototype/MedMind-Responsive/` (ผู้สูงอายุ `index.html` · ผู้ดูแล `caregiver.html`) มีจับคู่ด้วยรหัส/QR ในเบราว์เซอร์ และ**สแกนฉลากจริง** (อ่านในเบราว์เซอร์ → เติมฟอร์มเพิ่มยา) · ตรรกะ `prototype/js/logic/` (FR-02 สแกน, FR-03, FR-04, FR-05 บางข้อ) — ยังรอ: แยกไฟล์หน้าเว็บ (#46), จับคู่ครบ AC (#47), ตั้งเวลามื้อ + ฟอร์มยาตามช่องของ FR-02 (#48), ต่อหน้าเว็บเข้ากับ `reminder.js` / `confirm.js` — เตือนซ้ำ T+5/T+10, ปุ่ม "ยังไม่กิน" (#49), สถานะ + แจ้ง T+15 (#50) |
-| Automated tests | `npm test` → `prototype/tests/`: 80 เทสต์ — reminder + confirm 23 (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) · labelParser 35 + labelForm 10 (FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, BR-04, NFR-09 · รวมข้อความที่ OCR อ่านเพี้ยนจริง) · store 6 (BR-05) · role 6 (เลือกบทบาท, FR-01) — ผ่าน 80/80 (รัน 22 ต.ค. 2569, Node 22) · CI รัน test + lint + ตรวจความลับทุก PR · ยังไม่มีเทสต์ FR-01 (#47) และยังไม่ทดสอบกับผู้ใช้ (#50) |
+| Automated tests | `npm test` → `prototype/tests/`: 91 เทสต์ — reminder + confirm 23 (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) · labelParser 45 + labelForm 11 (FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, BR-04, NFR-09 · รวมข้อความที่ OCR อ่านเพี้ยนจริง) · store 6 (BR-05) · role 6 (เลือกบทบาท, FR-01) — ผ่าน 91/91 (รัน 24 ต.ค. 2569, Node 22) · CI รัน test + lint + ตรวจความลับทุก PR · ยังไม่มีเทสต์ FR-01 (#47) และยังไม่ทดสอบกับผู้ใช้ (#50) |
 | Final Report / AI-Use Statement | ร่างแล้ว: Report §1–3, §7–10 (§8–9 บางส่วน) · AI-Use Statement สรุปจาก `spec.md` §8 — ยังรอ: §4 Design, §5 Prototype, §6 ผลทดสอบ |
 
 > README นี้จะอัปเดตเมื่อมีผลจริง ช่อง **[ ]** = ยังไม่มีข้อมูลจริง ไม่เดา
@@ -145,7 +145,7 @@ npm test             # unit test ทั้งหมดใน prototype/tests/ (�
 npm install          # ครั้งแรกครั้งเดียว สำหรับคำสั่งด้านล่าง
 npm run check        # test + ตรวจคุณภาพโค้ด (ESLint) + ตรวจว่าไม่มีรหัสลับ — รันก่อน push
 ```
-ผลลัพธ์ (รัน 22 ต.ค. 2569, Node 22): **ผ่าน 80 / ไม่ผ่าน 0** — ครอบคลุม BR-05, BR-06, FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ, NFR-09 · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
+ผลลัพธ์ (รัน 24 ต.ค. 2569, Node 22): **ผ่าน 91 / ไม่ผ่าน 0** — ครอบคลุม BR-05, BR-06, FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ, NFR-09 · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
 
 ---
 
