@@ -1,17 +1,15 @@
-# MedMind responsive website demo
+# MedMind — งานออกแบบของ IDK-SleepyBro
 
-Open [index.html](index.html) for the senior view or [caregiver.html](caregiver.html) for the caregiver view. Both pages share the responsive layout and interaction code; navigation adapts from a desktop sidebar to a mobile bottom bar.
+เปิด [ต้นแบบงาน Figma ชุดใหม่](figma-IDK-SleepyBro/index.html) ในเบราว์เซอร์ และอ่าน [วิธีตรวจงานและข้อจำกัด](figma-IDK-SleepyBro/README.md)
 
-## Included flows
+ต้นฉบับออกแบบ: [MedMind Copy ใน Figma](https://www.figma.com/design/QApLysrw0Cin0OTNZpd0C0?node-id=7-2) · ผู้รับผิดชอบ Rossatorn Sangkaew / IDK-SleepyBro · Covers: FR-01–05, NFR-03
 
-- Thai/English, light/dark appearance, and text-size controls.
-- FR-01 pairing demo: the caregiver view stays on the invitation screen until a valid 6-digit code is entered and the senior has consented; patient schedule and status appear only after a successful pairing. The demo includes a local QR code, random code, expiry, one-time use, camera scan when supported, and manual code entry.
-- FR-02 medicine-label capture: use a phone camera or choose a label photo, review the photo, and enter/correct medicine details before saving them to the schedule. OCR is not connected; the prototype never guesses medicine instructions.
-- Caregivers use one “Add medicine” flow to enter details manually or optionally attach a label photo, then save; they can remove medicines. The senior view is read-only for medicine management.
-- Medicine rows in the schedule are generated from the saved demo medicine list.
+README นี้แทนคู่มืองานออกแบบเก่าของผู้ใช้ งานใหม่เปิดได้จากไฟล์เดียวโดยไม่ต้องติดตั้ง โปรแกรมส่วนอื่นของทีมยังเปิดผ่าน [หน้าเลือกบทบาท](role.html) หรือ [หน้ารวมสองบทบาท](demo.html)
 
-## Prototype limits
+## เหตุผลที่คงไฟล์เดิมบางส่วน
 
-This is a front-end demo with fictional sample content and no server or medical-record integration. Pairing is stored in this browser only, so it does not sync between separate devices. Invitation codes and medicine entries are local demo data. QR camera scanning needs browser camera support and a secure context such as HTTPS or localhost; manual code entry remains available. The camera/photo picker attaches a label image for review, but does not perform real OCR. Caregiver call buttons show a demo notice and do not place a call. Dose reminders and notifications are not delivered when the page is closed.
+ตรวจประวัติ 141 commits ถึง `main` ที่ `52aca3f0342c977333179b2174dd851aac5cf742` รวม branch ที่ดึงมา การย้ายชื่อไฟล์ และผู้ร่วมเขียน พบว่า `index.html`, `caregiver.html`, `role.html`, `demo.html` และไฟล์ฟีเจอร์มีงานของเพื่อนอยู่ จึงคงไว้ตามคำสั่งผู้ใช้
 
-For the interactive camera flows, open the files from a local web server or a static HTTPS host. GitHub's source-file preview only displays code and does not run the website.
+`app.js`, `flows.js` และ `styles.css` เดิมยังเป็นส่วนที่หน้าของเพื่อนเรียกใช้ โดยเฉพาะการสแกนฉลากและหน้าเลือกบทบาท จึงยังลบหรือแทนทั้งชุดไม่ได้โดยไม่กระทบงานเพื่อน ไฟล์เหล่านี้คงเนื้อหาเดิมทุกไบต์ งานออกแบบใหม่อยู่ใน `figma-IDK-SleepyBro/`
+
+เอกสารส่วนรวม เช่น `prototype/README.md`, Screen Map และบันทึก AI ใน `spec.md` มีประวัติของเพื่อน จึงบันทึกขอบเขต วิธีเปิด และการใช้ AI รอบนี้ใน [README ของงานใหม่](figma-IDK-SleepyBro/README.md) และ PR แทน
