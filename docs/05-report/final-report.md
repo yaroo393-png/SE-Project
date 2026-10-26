@@ -112,13 +112,17 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 ## 4. การออกแบบ (จาก M2 — `architecture.md`, `design-system.md`)
 
-**[รอ #47 และ #48]** — architecture ที่มาจาก FR · Use Case Diagram · Sequence FR-03 → FR-04 → FR-05 · State Machine DoseSession · ERD · Screen Map
+**[รอ #47]** — architecture ที่มาจาก FR · Use Case Diagram · Sequence FR-03 → FR-04 → FR-05 · State Machine DoseSession · ERD; Screen Map ของ #48 อยู่ใน Design system ที่อ้างด้านล่าง
+
+ส่วนของ Rossatorn (#48): [Design system](../03-design/design-system.md) มี tokens, components, Screen Map และสถานะ error/empty ของ FR-02 อ้างอิง Figma MedMind Copy หน้า `14:8`; architecture และแผนภาพของ #47 ยังเป็นงานเจ้าของเดิม
 
 ---
 
 ## 5. การทำ Prototype
 
-**[รอ #46–#50]** — เครื่องมือที่ใช้ · ขอบเขต Must FR (FR-01–05) · ภาพหน้าจอพร้อมป้าย "Covers: FR-x" · วิธีเปิด
+**[รอส่วน #47, #49, #50]** — ขอบเขต Must FR (FR-01–05) และภาพหน้าจอพร้อมป้าย "Covers: FR-x" ของฟีเจอร์เจ้าของเดิม; ผลส่วน #46/#48 แยกไว้ด้านล่าง
+
+ส่วน #46/#48 ของ IDK-SleepyBro: เปิด `prototype/role.html` → ผู้ดูแล → ยา; หน้าเว็บย้ายมา `prototype/` และแยกโครงหน้า `js/core/app.js`, จับคู่เดิม `js/features/pairing.js`, ฟอร์มยา `js/features/medicine.js` ฟีเจอร์ FR-02 ใช้ HTML/CSS/JavaScript ล้วนและ localStorage เดิม ตั้งเวลามื้อครั้งแรก ตรวจ/แก้ร่างจากสแกนหรือกรอกเอง แสดงเวลาเตือน แล้วให้ผู้ดูแลกดบันทึก มี [คู่มือโค้ดและ demo](../../prototype/FR02-IDK-SleepyBro.md) งานสแกนและสูตรเตือนเรียก API ของเพื่อน ไม่เปลี่ยน logic เหล่านั้น
 
 ---
 
@@ -126,6 +130,25 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 **[รอ #50]** — ตาราง Scenario | คาดหวัง | ผล ตาม AC ของ FR-01–05 · ผล automated test (NFR-01, 04, 05, 06, 07, 10) · ผลทดสอบกับผู้ใช้ (NFR-02, NFR-03, ตัววัดข้อ 1–4)
 > ใส่เฉพาะผลที่วัดจริง — ข้อที่ยังไม่ได้วัด ให้เขียนว่า "ยังไม่ได้วัด" พร้อมเหตุผล
+
+### 6.1 FR-02 จัดการยา — Rossatorn / Issue #48
+
+| Scenario / AC | คาดหวัง | หลักฐาน/ผล |
+|---|---|---|
+| ตรวจแก้ร่างแล้วบันทึก (✓2) | เก็บชื่อ ขนาดยาและข้อความที่แก้ล่าสุด | ผ่าน `prototype/tests/medication.test.js` วันที่ 26 ต.ค. 2569 |
+| ช่องบังคับขาด (✗3) | มี error รายช่อง ไม่เขียนรายการยา | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| ตั้งเวลามื้อครั้งแรก (✓6) | หลังอาหารเช้าใช้ 07:00 ที่ผู้ดูแลตั้ง | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| ตรวจ/preview แล้วกดยกเลิก (✗7) | ไม่เปลี่ยนรายการยาเดิม | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| ก่อนอาหารเช้า 30 นาที (✓8) | preview และค่าบันทึกเป็น 06:30 | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| ก่อนนอน (✓9) | ใช้เข้านอน 21:00 โดยไม่เลือกมื้ออาหาร | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| ก่อนอาหารไม่ระบุนาที (✗10) | ไม่เดานาที และไม่บันทึก | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| ไม่กดยืนยัน (NFR-06) | ร่างถูกต้องก็ยังเขียนไม่ได้ | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| หลายมื้อ/แก้/ลบ และชื่อยาซ้ำ | จัดการทั้งกลุ่มของยาถูกตัว ไม่ทำยาอื่นหาย | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+| storage ใช้ไม่ได้/ข้อมูลผิดชนิด | แจ้งไม่สำเร็จและไม่เขียนทับข้อมูลเดิม | ผ่าน เทสต์ไฟล์เดียวกัน วันที่ 26 ต.ค. 2569 |
+
+ผลรอบ 26 ต.ค. 2569 โดย AI agent: `npm run check` ผ่าน 110/110 เทสต์ (เดิม 80 + medication 30), ESLint และตรวจความลับผ่าน; DOM integration เพิ่มเติมผ่าน 22 scenarios ด้วย jsdom ติดตั้งนอก repo ครอบคลุมการจำกัดบทบาท ตั้งเวลามื้อโดยไม่บันทึกยา ก่อนอาหาร/ก่อนนอน หลายมื้อ ยกเลิก การแก้/ลบกลุ่มยา รายการเก่าที่ไม่มี id การกู้ฟอร์มหลังอ่านไม่ได้ escape ข้อความ สลับภาษาโดยข้อมูล/ตัวรับเหตุการณ์ไม่หาย แก้จำนวนเม็ดรายมื้อ และไม่มีกล่องช่วยเหลือในหน้าผู้ดูแล ทดสอบเส้นทางไฟล์รูปด้วย File สังเคราะห์และผล OCR จำลองว่าข้อควรระวังเติมได้โดยไม่บันทึกอัตโนมัติ การเปลี่ยนเวลามื้อคำนวณเวลาแสดงผลใหม่โดยไม่เขียนรายการเดิมอัตโนมัติ
+
+ผลนี้เป็น automated test และ DOM integration ไม่มี visual QA จริงเพราะเครื่องมือตรวจเบราว์เซอร์ปฏิเสธ `file://` ทีมต้องเปิด `prototype/role.html` / `demo.html` ตรวจ desktop/mobile และเทียบ Figma ก่อน merge รอบนี้ไม่ได้ทดสอบกล้อง/OCR จริง ไม่ได้วัด NFR-02/NFR-03 กับกลุ่มผู้สูงอายุหรือวัด OCR กับฉลากจริง 20 ใบ งานดังกล่าวยังติดตามกับเจ้าของ #50/#51
 
 ---
 
@@ -147,7 +170,7 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 |---|---|---|---|
 | YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | [#22](https://github.com/yaroo393-png/SE-Project/issues/22), [#23](https://github.com/yaroo393-png/SE-Project/issues/23), [#51](https://github.com/yaroo393-png/SE-Project/issues/51), [#30](https://github.com/yaroo393-png/SE-Project/issues/30), [#31](https://github.com/yaroo393-png/SE-Project/issues/31), [#32](https://github.com/yaroo393-png/SE-Project/issues/32) | Charter/SRS/Backlog: [PR ที่ merge แล้วทั้งหมดของ yaroo393-png](https://github.com/yaroo393-png/SE-Project/pulls?q=is%3Apr+is%3Amerged+author%3Ayaroo393-png) (บางส่วนร่างด้วย AI ดู §7) · commit: [`b390fac`](https://github.com/yaroo393-png/SE-Project/commit/b390fac), [`6d84a27`](https://github.com/yaroo393-png/SE-Project/commit/6d84a27), [`1fb8925`](https://github.com/yaroo393-png/SE-Project/commit/1fb8925), [`430bf68`](https://github.com/yaroo393-png/SE-Project/commit/430bf68), [`d99fd5d`](https://github.com/yaroo393-png/SE-Project/commit/d99fd5d), [`bf594a0`](https://github.com/yaroo393-png/SE-Project/commit/bf594a0) |
 | Takkan Khanlui | Architecture, Use Case, Sequence, State Machine, ERD | [#47](https://github.com/yaroo393-png/SE-Project/issues/47) | **[ใส่ commit เมื่อมี]** |
-| Rossatorn Sangkaew | Design tokens, Screen Map, Error/empty states, CSS ของ prototype, Demo Slides | [#46](https://github.com/yaroo393-png/SE-Project/issues/46), [#48](https://github.com/yaroo393-png/SE-Project/issues/48) | **[ใส่ commit เมื่อมี]** |
+| Rossatorn Sangkaew | จัดโครงหน้าเว็บ, FR-02 จัดการยา (logic + tests + ฟอร์ม + เวลามื้อ), Design tokens, Screen Map, Error/empty states และ CSS ของ prototype; Demo Slides ตามงานเดิม | [#46](https://github.com/yaroo393-png/SE-Project/issues/46), [#48](https://github.com/yaroo393-png/SE-Project/issues/48) | [คู่มือโค้ดและขอบเขต](../../prototype/FR02-IDK-SleepyBro.md) · PR รอบนี้รอเพื่อนรีวิว ยังไม่ merge; ใช้ AI ช่วยตาม `spec.md` §8 |
 | Nichanan Lalua | Prototype Increment 1–2, ข้อมูลสมาชิกใน Charter §9 | [#49](https://github.com/yaroo393-png/SE-Project/issues/49) | ข้อมูลสมาชิกใน Charter §9 (9 ต.ค.) · prototype **[ใส่ commit เมื่อมี]** |
 | Suchitra Khomdee | Test plan, automated test, ทดสอบกับผู้ใช้ | [#50](https://github.com/yaroo393-png/SE-Project/issues/50) | **[ใส่ commit เมื่อมี]** |
 
