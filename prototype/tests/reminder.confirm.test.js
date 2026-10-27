@@ -252,3 +252,110 @@ test('BR-16: มื้อซ้อนกันนับช่วงยืนย�
   assert.equal(confirm.confirmMeal({}, a, meals, t('07:10')).ok, false);
   assert.equal(confirm.confirmMeal({}, b, meals, t('07:10')).ok, true);
 });
+
+// ───────── issue #49 (FR-03 + FR-04 ต่อหน้าเว็บ): AC ที่ยังไม่มีเทสต์ครอบ ─────────
+
+test('FR-03 / BR-08: นาฬิกาจำลองเดินทีละนาที → เตือนเฉพาะ T, T+5, T+10 (รวม 3 ครั้ง) เสียง 1 ครั้งต่อรอบ', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const meal = meals[0];
+  const rounds = [];
+  for (let now = meal.time - 3; now <= meal.time + 20; now++) {
+    const due = reminder.dueReminders(meals, {}, now); // prevNow = now - 1 เหมือนปุ่ม +1 นาที
+    if (due.firing.length) {
+      assert.equal(due.sound, true);
+      rounds.push(now - meal.time);
+    } else {
+      assert.equal(due.sound, false);
+    }
+  }
+  assert.deepEqual(rounds, [0, 5, 10]);
+});
+
+test('FR-03: ข้ามเวลาด้วยปุ่ม +5 (prevNow→now) ยังเจอรอบเตือนที่ตกในช่วงนั้น', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const T = meals[0].time;
+  const due = reminder.dueReminders(meals, {}, T + 5, T); // กด +5 จาก T
+  assert.equal(due.firing.length, 1);
+  assert.equal(due.firing[0].round, 2);
+  assert.equal(reminder.dueReminders(meals, {}, T + 5, T + 5).sound, false); // เวลาไม่เดิน ไม่เตือนซ้ำ
+});
+
+test('FR-04 ✓3: "ยังไม่กิน" รอบ 2 (08:05) → เตือนอีกครั้ง 08:10 และไม่แจ้ง Caregiver', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const [meal] = meals;
+  const state = {};
+  const res = confirm.pressNotYet(state, meal, meals, meal.time + 5);
+  assert.equal(res.ok, true);
+  assert.equal(res.action, 'wait_next_round');
+  assert.equal(res.nextAt, meal.time + 10);
+  assert.deepEqual(res.events, []);
+});
+
+test('FR-04: กด "ยังไม่กิน" ก่อนถึงเวลา / หลังหมดรอบเตือน / หลังยืนยันแล้ว → ไม่รับ', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const [meal] = meals;
+  assert.equal(confirm.pressNotYet({}, meal, meals, meal.time - 1).reason, 'not_due');
+  assert.equal(confirm.pressNotYet({}, meal, meals, meal.time + 15).reason, 'reminder_over');
+  const state = {};
+  confirm.confirmMeal(state, meal, meals, meal.time + 1);
+  assert.equal(confirm.pressNotYet(state, meal, meals, meal.time + 2).reason, 'already_confirmed');
+});
+
+test('BR-13: แจ้ง "ยังไม่ยืนยัน" ที่ T+10 แล้ว ถึง T+15 ไม่แจ้งซ้ำ และยืนยันช้าทีหลังส่งข้อความตามหลังให้ Caregiver', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const [meal] = meals;
+  const state = {};
+  const first = confirm.pressNotYet(state, meal, meals, meal.time + 10);
+  assert.equal(first.events.length, 1);
+  assert.equal(confirm.tick(state, meals, meal.time + 15).length, 0);
+  const late = confirm.confirmMeal(state, meal, meals, meal.time + 20);
+  assert.equal(late.late, true);
+  assert.equal(late.events[0].kind, 'confirmed');
+  assert.equal(state[meal.id].confirmationLog.length, 1);
+});
+
+test('FR-04 ✗2 / NFR-07: กดซ้ำหลังยืนยันช้า → duplicate, เวลาเดิม, ไม่แจ้ง Caregiver ซ้ำ', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const [meal] = meals;
+  const state = {};
+  confirm.confirmMeal(state, meal, meals, meal.time + 30);
+  const again = confirm.confirmMeal(state, meal, meals, meal.time + 45);
+  assert.equal(again.duplicate, true);
+  assert.deepEqual(again.events, []);
+  assert.equal(state[meal.id].confirmedAt, meal.time + 30);
+  assert.equal(state[meal.id].confirmationLog.length, 1);
+});
+
+test('FR-04 ✓5: หน้าแรก Senior — ปุ่ม "กินแล้ว" โผล่เฉพาะมื้อที่เลย T+15 และยังยืนยันได้; หายเมื่อยืนยัน', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const [meal] = meals;
+  const state = {};
+  assert.equal(confirm.seniorHome(state, meals, meal.time - 10)[0].showConfirmButton, false); // รอถึงเวลา
+  assert.equal(confirm.seniorHome(state, meals, meal.time + 5)[0].showConfirmButton, false); // กำลังเตือน (ใช้หน้าเตือน)
+  const overdue = confirm.seniorHome(state, meals, meal.time + 15)[0];
+  assert.equal(overdue.status.code, 'unconfirmed');
+  assert.equal(overdue.showConfirmButton, true);
+  confirm.confirmMeal(state, meal, meals, meal.time + 16);
+  const done = confirm.seniorHome(state, meals, meal.time + 17)[0];
+  assert.equal(done.status.code, 'confirmed_late');
+  assert.equal(done.showConfirmButton, false);
+});
+
+test('FR-04 ✓1: ยืนยันที่ T+14 ยังเป็น "กินแล้ว" (ไม่ช้า) และไม่แจ้ง Caregiver; T+15 พอดีนับว่าช้า', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const [meal] = meals;
+  const onTime = confirm.confirmMeal({}, meal, meals, meal.time + 14);
+  assert.equal(onTime.late, false);
+  assert.deepEqual(onTime.events, []);
+  assert.equal(confirm.confirmMeal({}, meal, meals, meal.time + 15).late, true);
+});
+
+test('FR-03 ✓3: ยืนยันระหว่างเตือนแล้ว display ว่าง — มื้อที่ยืนยันไม่ถูกแสดงอีก', () => {
+  const { meals } = reminder.buildMeals([dose('a', after('morning'), 1)], SETTINGS);
+  const [meal] = meals;
+  const state = {};
+  confirm.confirmMeal(state, meal, meals, meal.time + 1);
+  const due = reminder.dueReminders(meals, state, meal.time + 5, meal.time + 4);
+  assert.deepEqual(due, { firing: [], display: [], sound: false });
+  assert.deepEqual(reminder.activeReminderMeals(meals, state, meal.time + 5), []);
+});
