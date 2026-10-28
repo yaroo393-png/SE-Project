@@ -4,7 +4,7 @@
  *
  * Covers: FR-02 (✓1, ✗3, ✗4, ✗5, ✗10) · BR-04 (ไม่เดา) · BR-06 (เวลาจากเวลามื้อ) · NFR-06 (ไม่บันทึกเองจนกด "บันทึก") · NFR-09 (รูปไม่ออกนอกเครื่อง)
  * ใช้: logic/reminder.js, logic/labelParser.js, logic/labelForm.js, core/store.js, services/scanner.js — ต้องโหลดก่อนไฟล์นี้
- * ต่อกับฟอร์ม #medicine-form ของหน้า demo โดยไม่แก้ flows.js / app.js: ฟัง change ของ #medicine-photo-input แล้ววางผลในกล่อง #scan-panel
+ * ต่อกับฟอร์ม #medicine-form โดยไม่แก้ js/core/app.js / js/features/medicine.js: ฟัง change ของ #medicine-photo-input แล้ววางผลในกล่อง #scan-panel
  * ไม่มี server: Tesseract.js อ่านในเครื่อง (ครั้งแรกต้องต่อเน็ตเพื่อโหลดตัวอ่าน) · "ฉลากตัวอย่าง" ใช้ demo ทุกกรณีของ AC ได้แม้ไม่มีเน็ต
  */
 (function (root) {
@@ -17,6 +17,8 @@
     { id: 'before30', label: 'ก่อนอาหารเช้า 30 นาที (✓8)', text: 'OMEPRAZOLE 20 MG CAP\nครั้งละ 1 แคปซูล\nก่อนอาหารเช้า 30 นาที' },
     { id: 'bedtime', label: 'ก่อนนอน (✓9)', text: 'CHLORPHENIRAMINE 4 MG\nครั้งละ 1 เม็ด ก่อนนอน\nยานี้อาจทำให้ง่วงซึม' },
     { id: 'twoMeals', label: 'หลังอาหารเช้า-เย็น (หลายมื้อ)', text: 'METFORMIN 500 MG\nครั้งละ 2 เม็ด\nหลังอาหาร เช้า - เย็น' },
+    // ตารางสีข้างฉลาก: OCR อ่านเป็นคอลัมน์ขวา ห่างจากข้อความวิธีใช้หลายช่องว่าง
+    { id: 'sideTable', label: 'ตารางข้างฉลาก เช้า 2 / เย็น 1 เม็ด', text: 'นายสมมติ ทดสอบ  HN 0000000            เช้า 2 เม็ด\nGLIPIZIDE 5 MG/1 TABLET            เที่ยง -\nรับประทานหลังอาหาร            เย็น 1 เม็ด\n# 30 เม็ด            ก่อนนอน -' },
     { id: 'blurry', label: 'อ่านชื่อยาไม่ได้ (✗3)', text: 'ร บ ป ร ะ … เม็ด\nหลังอาหาร เย็น' },
     { id: 'noMinutes', label: 'ก่อนอาหาร ไม่ระบุนาที (✗10)', text: 'GLICLAZIDE 80 MG\nครั้งละ 1 เม็ด ก่อนอาหารเช้า' },
     { id: 'prn', label: 'ยาเมื่อมีอาการ (✗4)', text: 'PARACETAMOL 500 MG\nครั้งละ 1-2 เม็ด ทุก 4-6 ชั่วโมง เวลาปวด หรือมีไข้' },

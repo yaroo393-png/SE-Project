@@ -57,13 +57,14 @@
    *   fields: { name, dose, time, instruction }   ค่าที่จะเติม — ช่องที่อ่านไม่ได้เป็น '' (BR-04)
    *   missing: ['name', 'dose', 'time', ...]      ช่องที่ต้องให้ผู้ดูแลกรอก/ตรวจ
    *   unsure: ['name', 'dose']                    ช่องที่มีค่า แต่ระบบแก้คำที่ OCR อ่านเพี้ยนให้ → ต้องตรวจให้ตรงฉลาก
-   *   timings: ['หลังอาหารเช้า (07:00)', ...]      ทุกมื้อที่อ่านได้ (ฟอร์มรับได้ทีละมื้อ)
+   *   timings: ['หลังอาหารเช้า (07:00)', ...]      ทุกมื้อที่อ่านได้ (ฟอร์มรับได้ทีละมื้อ) · จำนวนเม็ดต่างกันรายมื้อ → 'หลังอาหารเย็น 1 เม็ด (18:00)'
    *   unsupported: ข้อความ | null                 FR-02 ✗4 → ห้ามบันทึก
    * }
    */
   function toForm(draft, mealTimes, reminder) {
     var d = draft || {};
     var timings = Array.isArray(d.timings) ? d.timings : [];
+    var perMeal = timings.some(function (t) { return Number.isInteger(t.pills); });
     var first = timings[0] || null;
     var at = first ? reminder.reminderTime({ timing: first }, mealTimes) : null;
 
@@ -84,7 +85,9 @@
       unsure: unsure,
       timings: timings.map(function (t) {
         var time = reminder.reminderTime({ timing: t }, mealTimes);
-        return timingText(t) + (time === null ? '' : ' (' + reminder.formatTime(time) + ')');
+        // จำนวนเม็ดต่างกันรายมื้อ (ตารางข้างฉลาก "เช้า 2 / เย็น 1") → บอกจำนวนทุกมื้อ ไม่ให้ใช้ค่าในช่องขนาดยากับทุกมื้อ
+        var pills = perMeal ? ' ' + (t.pills || d.pills || '…') + ' เม็ด' : '';
+        return timingText(t) + pills + (time === null ? '' : ' (' + reminder.formatTime(time) + ')');
       }),
       unsupported: d.unsupported ? (UNSUPPORTED[d.unsupported] || 'ระบบยังไม่รองรับยานี้') : null
     };
