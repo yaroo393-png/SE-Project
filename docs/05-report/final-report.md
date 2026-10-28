@@ -1,6 +1,6 @@
 # Final Project Report — MedMind
 
-> สถานะ: **ร่าง** — §1–3, §7, §8 (บางส่วน), §9 (บางส่วน), §10 เขียนแล้ว · §4 รอ #47/#48 · §5 รอ #46–#50 · §6 รอ #50
+> สถานะ: **ร่าง** — §1–3, §7, §8 (บางส่วน), §9 (บางส่วน), §10 เขียนแล้ว · §4 มีส่วน #48 แล้ว รอ #47 · §5 มีส่วน #46/#48 แล้ว รอ #47/#49/#50 · §6 รอ #50
 > ทุกข้อความในรายงานสรุปจาก Charter และ SRS — ถ้าขัดกัน ให้ยึด `spec.md` เป็นต้นฉบับ
 
 ---
@@ -148,7 +148,7 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 ผลรอบ 26 ต.ค. 2569 โดย AI agent: `npm run check` ผ่าน 110/110 เทสต์ (เดิม 80 + medication 30), ESLint และตรวจความลับผ่าน; DOM integration เพิ่มเติมผ่าน 22 scenarios ด้วย jsdom ติดตั้งนอก repo ครอบคลุมการจำกัดบทบาท ตั้งเวลามื้อโดยไม่บันทึกยา ก่อนอาหาร/ก่อนนอน หลายมื้อ ยกเลิก การแก้/ลบกลุ่มยา รายการเก่าที่ไม่มี id การกู้ฟอร์มหลังอ่านไม่ได้ escape ข้อความ สลับภาษาโดยข้อมูล/ตัวรับเหตุการณ์ไม่หาย แก้จำนวนเม็ดรายมื้อ และไม่มีกล่องช่วยเหลือในหน้าผู้ดูแล ทดสอบเส้นทางไฟล์รูปด้วย File สังเคราะห์และผล OCR จำลองว่าข้อควรระวังเติมได้โดยไม่บันทึกอัตโนมัติ การเปลี่ยนเวลามื้อคำนวณเวลาแสดงผลใหม่โดยไม่เขียนรายการเดิมอัตโนมัติ
 
-ผลนี้เป็น automated test และ DOM integration ไม่มี visual QA จริงเพราะเครื่องมือตรวจเบราว์เซอร์ปฏิเสธ `file://` ทีมต้องเปิด `prototype/role.html` / `demo.html` ตรวจ desktop/mobile และเทียบ Figma ก่อน merge รอบนี้ไม่ได้ทดสอบกล้อง/OCR จริง ไม่ได้วัด NFR-02/NFR-03 กับกลุ่มผู้สูงอายุหรือวัด OCR กับฉลากจริง 20 ใบ งานดังกล่าวยังติดตามกับเจ้าของ #50/#51
+ผลนี้เป็น automated test และ DOM integration ไม่มี visual QA จริงเพราะเครื่องมือตรวจเบราว์เซอร์ปฏิเสธ `file://` ทีมยังต้องเปิด `prototype/role.html` / `demo.html` ตรวจ desktop/mobile และเทียบ Figma เพื่อยืนยันผล visual QA จริง รอบนี้ไม่ได้ทดสอบกล้อง/OCR จริง ไม่ได้วัด NFR-02/NFR-03 กับกลุ่มผู้สูงอายุหรือวัด OCR กับฉลากจริง 20 ใบ งานดังกล่าวยังติดตามกับเจ้าของ #50/#51
 
 ---
 
@@ -170,7 +170,7 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 |---|---|---|---|
 | YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | [#22](https://github.com/yaroo393-png/SE-Project/issues/22), [#23](https://github.com/yaroo393-png/SE-Project/issues/23), [#51](https://github.com/yaroo393-png/SE-Project/issues/51), [#30](https://github.com/yaroo393-png/SE-Project/issues/30), [#31](https://github.com/yaroo393-png/SE-Project/issues/31), [#32](https://github.com/yaroo393-png/SE-Project/issues/32) | Charter/SRS/Backlog: [PR ที่ merge แล้วทั้งหมดของ yaroo393-png](https://github.com/yaroo393-png/SE-Project/pulls?q=is%3Apr+is%3Amerged+author%3Ayaroo393-png) (บางส่วนร่างด้วย AI ดู §7) · commit: [`b390fac`](https://github.com/yaroo393-png/SE-Project/commit/b390fac), [`6d84a27`](https://github.com/yaroo393-png/SE-Project/commit/6d84a27), [`1fb8925`](https://github.com/yaroo393-png/SE-Project/commit/1fb8925), [`430bf68`](https://github.com/yaroo393-png/SE-Project/commit/430bf68), [`d99fd5d`](https://github.com/yaroo393-png/SE-Project/commit/d99fd5d), [`bf594a0`](https://github.com/yaroo393-png/SE-Project/commit/bf594a0) |
 | Takkan Khanlui | Architecture, Use Case, Sequence, State Machine, ERD | [#47](https://github.com/yaroo393-png/SE-Project/issues/47) | **[ใส่ commit เมื่อมี]** |
-| Rossatorn Sangkaew | จัดโครงหน้าเว็บ, FR-02 จัดการยา (logic + tests + ฟอร์ม + เวลามื้อ), Design tokens, Screen Map, Error/empty states และ CSS ของ prototype; Demo Slides ตามงานเดิม | [#46](https://github.com/yaroo393-png/SE-Project/issues/46), [#48](https://github.com/yaroo393-png/SE-Project/issues/48) | [คู่มือโค้ดและขอบเขต](../../prototype/FR02-IDK-SleepyBro.md) · PR รอบนี้รอเพื่อนรีวิว ยังไม่ merge; ใช้ AI ช่วยตาม `spec.md` §8 |
+| Rossatorn Sangkaew | จัดโครงหน้าเว็บ, FR-02 จัดการยา (logic + tests + ฟอร์ม + เวลามื้อ), Design tokens, Screen Map, Error/empty states และ CSS ของ prototype; Demo Slides ตามงานเดิม | [#46](https://github.com/yaroo393-png/SE-Project/issues/46), [#48](https://github.com/yaroo393-png/SE-Project/issues/48) | [คู่มือโค้ดและขอบเขต](../../prototype/FR02-IDK-SleepyBro.md) · [PR #57](https://github.com/yaroo393-png/SE-Project/pull/57) ได้รับรีวิวและ merge เข้า `main` แล้ว (28 ต.ค. 2569); ใช้ AI ช่วยตาม `spec.md` §8 |
 | Nichanan Lalua | Prototype Increment 1–2, ข้อมูลสมาชิกใน Charter §9 | [#49](https://github.com/yaroo393-png/SE-Project/issues/49) | ข้อมูลสมาชิกใน Charter §9 (9 ต.ค.) · prototype **[ใส่ commit เมื่อมี]** |
 | Suchitra Khomdee | Test plan, automated test, ทดสอบกับผู้ใช้ | [#50](https://github.com/yaroo393-png/SE-Project/issues/50) | **[ใส่ commit เมื่อมี]** |
 
@@ -183,7 +183,7 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 | ปัญหา | Requirement | Design | Feature | Test |
 |---|---|---|---|---|
 | ผู้สูงอายุไม่สะดวกสมัครบัญชี; ผู้ดูแลไม่อยู่ด้วย | FR-01 | **[รอ #47]** | **[รอ #47]** | FR-01 AC 1–6 · NFR-04, 05, 10 → **[ผลจาก #50]** |
-| ผู้ดูแลอยากให้ช่วยกรอกข้อมูลยาจากฉลาก | FR-02 | **[รอ #47]** | สแกนฉลาก → เติมฟอร์มเพิ่มยา (`js/features/scan.js`) · ฟอร์มยาตามช่อง **[รอ #48, #51]** | FR-02 AC 1–10 · NFR-06, 09 → **[ผลจาก #50]** |
+| ผู้ดูแลอยากให้ช่วยกรอกข้อมูลยาจากฉลาก | FR-02 | **[รอ #47]** | สแกนฉลาก → เติมฟอร์มเพิ่มยา (`js/features/scan.js`) · ฟอร์มยาตามช่องของ #48 รวมใน [PR #57](https://github.com/yaroo393-png/SE-Project/pull/57) แล้ว · งานปรับระบบสแกนต่อ **[รอ #51]** | FR-02 AC 1–10 · NFR-06, 09 → **[ผลจาก #50]** |
 | ลืมกินยา / กินไม่ตรงเวลา | FR-03 | **[รอ #47]** State machine ของมื้อยา | **[รอ #49]** หน้าเตือน | FR-03 AC 1–4 · NFR-01 → **[ผลจาก #50]** |
 | จำไม่ได้ว่ากินแล้วหรือยัง | FR-04 | **[รอ #47]** | **[รอ #49]** | FR-04 AC 1–6 · NFR-02, 03, 07 → **[ผลจาก #50]** |
 | ต้องโทร/ส่ง LINE ถามทุกมื้อ; ไม่มีสถานะรวม | FR-05 | **[รอ #47]** | **[รอ #50]** | FR-05 AC 1–6 · NFR-01 → **[ผลจาก #50]** |
