@@ -19,7 +19,7 @@
 | M2 SRS / Requirements | SRS v2.0 ร่างแล้ว (`spec.md`): FR-01..08 (Must 5 · Should 1 · Could 2), BR-01..17, AC, NFR-01..10, Use case, Traceability — ยังรอ: Use-case diagram, แถวว่างใน AI log (§8) |
 | M2 Design | `design-system.md`: tokens, components, Screen Map และ error/empty states ของงาน #48 · `architecture.md` (มีแค่ตาราง Module & Event), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#47) |
 | M3 Prototype | หน้าเว็บอยู่ที่ `prototype/` หลังจัดโครง #46 · FR-02 จัดการยา #48: ตั้งเวลามื้อ ฟอร์มเพิ่ม/แก้/ลบยา หลายมื้อ ก่อน/หลังอาหาร/ก่อนนอน และแสดงเวลาเตือนก่อนบันทึก · ระบบสแกนเดิมของ YAR OO อ่านในเบราว์เซอร์ → เติมร่างให้ผู้ดูแลตรวจ · งาน FR-01, FR-03–05 ที่ยังไม่ครบติดตามใน #47, #49, #50 ไม่เปลี่ยนสถานะงานเพื่อนในรอบนี้ |
-| Automated tests | ผล 26 ต.ค. 2569: `npm run check` ผ่าน 110/110 เทสต์ (เดิม 80 + medication 30), ESLint และตรวจความลับผ่าน · DOM integration เพิ่มเติมผ่าน 22 scenarios โดย AI agent (เครื่องมือตรวจติดตั้งนอก repo ไม่เพิ่ม dependency โปรเจกต์) · ยังไม่มีผล visual QA ในเบราว์เซอร์หรือผลทดสอบผู้ใช้จริง (#50) |
+| Automated tests | ผล 28 ต.ค. 2569: `npm run check` ผ่าน 120/120 เทสต์ (เดิม 80 + medication 30 + อ่านตารางมื้อยา/จำนวนเม็ด 10), ESLint และตรวจความลับผ่าน · DOM integration เพิ่มเติมผ่าน 22 scenarios โดย AI agent (เครื่องมือตรวจติดตั้งนอก repo ไม่เพิ่ม dependency โปรเจกต์) · ยังไม่มีผล visual QA ในเบราว์เซอร์หรือผลทดสอบผู้ใช้จริง (#50) |
 | Final Report / AI-Use Statement | ร่างแล้ว: Report §1–3, §7–10 (§8–9 บางส่วน) · AI-Use Statement สรุปจาก `spec.md` §8 — ยังรอ: §4 Design, §5 Prototype, §6 ผลทดสอบ |
 
 > README นี้จะอัปเดตเมื่อมีผลจริง ช่อง **[ ]** = ยังไม่มีข้อมูลจริง ไม่เดา
@@ -154,7 +154,7 @@ npm test             # unit test ทั้งหมดใน prototype/tests/ (�
 npm install          # ครั้งแรกครั้งเดียว สำหรับคำสั่งด้านล่าง
 npm run check        # test + ตรวจคุณภาพโค้ด (ESLint) + ตรวจว่าไม่มีรหัสลับ — รันก่อน push
 ```
-ผลล่าสุด (26 ต.ค. 2569): **ผ่าน 110 / ไม่ผ่าน 0** — เทสต์เดิม 80 + `medication.test.js` 30; `npm run check` ผ่าน ESLint และการตรวจความลับด้วย · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
+ผลล่าสุด (28 ต.ค. 2569): **ผ่าน 120 / ไม่ผ่าน 0** — เทสต์เดิม 80 + `medication.test.js` 30 + อ่านตารางมื้อยา/จำนวนเม็ด 10; `npm run check` ผ่าน ESLint และการตรวจความลับด้วย · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
 
 ตรวจ DOM integration เพิ่มเติมผ่าน 22 scenarios (การเลือกบทบาท ตั้งเวลามื้อ ร่าง/preview/บันทึก/แก้/ลบ/ยกเลิกยา หลายมื้อ ก่อนนอน การกู้ฟอร์มหลังสแกนไม่ได้ และ escape ข้อความ) ด้วย jsdom นอก repo ไม่มี package โปรเจกต์เพิ่ม การเปิด `file://` ในเครื่องมือตรวจเบราว์เซอร์ถูกนโยบายเครื่องมือจำกัด จึงยังไม่ได้ตรวจภาพจริงบน desktop/mobile หรือกล้อง/OCR จริงรอบนี้ ทีมต้องเปิดหน้า `role.html` / `demo.html` ตรวจหน้าจอก่อน merge
 

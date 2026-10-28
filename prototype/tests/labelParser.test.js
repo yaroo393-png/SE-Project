@@ -258,6 +258,101 @@ test('ตัวอักษรที่ OCR สับสน: "เข้า" = �
 
 // ---------- ผลจาก AI (Gemini) — ไม่เชื่อทั้งหมด ตรวจรูปแบบก่อนเป็นร่าง ----------
 
+// ตารางสีข้างฉลาก: OCR อ่านเป็นคอลัมน์ขวา ห่างจากข้อความวิธีใช้หลายช่องว่าง
+const TABLE_LABEL = [
+  'นายสมมติ ทดสอบ   HN0000000                    เช้า 2 เม็ด',
+  'GLIPIZIDE [GPO]',
+  '5 MG/1 TABLET                                เที่ยง -',
+  'รับประทานหลังอาหาร                           เย็น 1 เม็ด',
+  '# 30 เม็ด                                    ก่อนนอน -'
+].join('\n');
+
+test('ตารางข้างฉลาก: "หลังอาหาร" + ตาราง เช้า 2 / เที่ยง - / เย็น 1 / ก่อนนอน - → แยกรายมื้อ จำนวนเม็ดตามตาราง', () => {
+  const r = parseLabel(TABLE_LABEL);
+  assert.equal(r.draft.pills, 2);
+  assert.deepEqual(r.draft.timings, [
+    { type: 'after', slot: 'morning', minutesBefore: null },
+    { type: 'after', slot: 'evening', minutesBefore: null, pills: 1 }
+  ]);
+  assert.deepEqual(r.draft.unsure, []);
+  assert.deepEqual(r.missing, []);
+});
+
+test('ตารางข้างฉลาก: ก่อนอาหาร 30 นาที + ตาราง 1/1/1/- → ก่อนอาหาร 3 มื้อ · ตารางบอกก่อนนอนอย่างเดียว → ก่อนนอน', () => {
+  const r = parseLabel([
+    'OMEPRAZOLE 20 MG                         เช้า 1 เม็ด',
+    'รับประทานครั้งละ 1 เม็ด                   เที่ยง 1 เม็ด',
+    'ก่อนอาหาร 30 นาที                         เย็น 1 เม็ด',
+    '# 30 เม็ด                                ก่อนนอน -'
+  ].join('\n'));
+  assert.deepEqual(r.draft.timings.map((t) => [t.type, t.slot, t.minutesBefore]), [
+    ['before', 'morning', 30], ['before', 'noon', 30], ['before', 'evening', 30]
+  ]);
+  const bed = parseLabel('AMITRIPTYLINE 10 MG          เช้า -\nรับประทานครั้งละ 1 เม็ด       เที่ยง -\n# 30 เม็ด          เย็น -\n          ก่อนนอน 1 เม็ด');
+  assert.deepEqual(bed.draft.timings, [{ type: 'bedtime', slot: null, minutesBefore: null }]);
+  assert.equal(bed.draft.pills, 1);
+});
+
+test('ตารางข้างฉลาก BR-04/BR-06: อ่านตารางไม่ครบ หรือฉลากไม่บอกก่อน/หลังอาหาร → ไม่เดามื้อ', () => {
+  // ช่อง "เย็น" อ่านค่าไม่ออก → ไม่แยกรายมื้อ (มื้อว่าง ขึ้นกรอบแดงให้ผู้ดูแลเลือก)
+  const partial = parseLabel('METFORMIN 500 MG          เช้า 1 เม็ด\nรับประทานครั้งละ 1 เม็ด    เที่ยง -\nหลังอาหาร          เย็น ว do');
+  assert.deepEqual(partial.draft.timings, [{ type: 'after', slot: null, minutesBefore: null }]);
+  // ช่องตารางที่อ่านได้แค่หัว "ก่อนนอน" (ขีดหาย) ไม่ใช่วิธีใช้ "ก่อนนอน"
+  const lostDash = parseLabel('METFORMIN 500 MG\nรับประทานครั้งละ 1 เม็ด\nหลังอาหาร                  | ก่อนนอน\n#30เม็ด');
+  assert.deepEqual(lostDash.draft.timings, [{ type: 'after', slot: null, minutesBefore: null }]);
+  // ไม่มีคำว่า ก่อน/หลังอาหาร → ตารางบอกได้แค่มื้อ ไม่รู้ชนิด → ไม่เติม
+  const noType = parseLabel('LOSARTAN 50 MG          เช้า 1 เม็ด\nวันละ 2 ครั้ง ครั้งละ 1 เม็ด          เที่ยง -\n# 30 เม็ด          เย็น 1 เม็ด\n          ก่อนนอน -');
+  assert.deepEqual(noType.draft.timings, []);
+  assert.equal(noType.draft.pills, 1);
+});
+
+test('ตารางข้างฉลาก: "เช้า-เย็น" เป็นวิธีใช้ ไม่ใช่ช่อง "เช้า: ไม่มี" · ข้อความกับตารางบอกจำนวนไม่ตรงกัน → ต้องตรวจ', () => {
+  const r = parseLabel('AMLODIPINE 10 MG\nรับประทานครั้งละ 1 เม็ด หลังอาหาร          เช้า-เย็น');
+  assert.deepEqual(r.draft.timings.map((t) => t.slot), ['morning', 'evening']);
+  const clash = parseLabel('GLIPIZIDE 5 MG          เช้า 2 เม็ด\nรับประทานครั้งละ 1 เม็ด หลังอาหาร          เที่ยง -\n          เย็น 2 เม็ด');
+  assert.deepEqual(clash.draft.unsure, ['pills']);
+});
+
+test('วิธีใช้เรียงในบรรทัด "เช้า 1 เม็ด เย็น 2 เม็ด" → มื้อที่ไม่เขียน = ไม่กิน', () => {
+  const r = parseLabel('METFORMIN 500 MG\nหลังอาหาร\nเช้า 1 เม็ด เย็น 2 เม็ด');
+  assert.equal(r.draft.pills, 1);
+  assert.deepEqual(r.draft.timings, [
+    { type: 'after', slot: 'morning', minutesBefore: null },
+    { type: 'after', slot: 'evening', minutesBefore: null, pills: 2 }
+  ]);
+});
+
+test('จำนวนเม็ดไม่มีคำว่า "ครั้งละ": "ทาน 1 เม็ด" / "ทีละ 2 เม็ด" ได้เลย · "1 เม็ด วันละ 2 ครั้ง" ได้แต่ต้องตรวจ', () => {
+  assert.deepEqual([parseLabel('SIMVASTATIN 40 MG\nทาน1เมด หลังอาหารเช้า').draft.pills, parseLabel('X 5 MG\nทีละ 2 เม็ด ก่อนนอน').draft.pills], [1, 2]);
+  const r = parseLabel('AMLODIPINE 10 MG\n1เม็ด วันละ 2 ครั้ง\nหลังอาหาร เช้า-เย็น\n# 30เม็ด');
+  assert.equal(r.draft.pills, 1);
+  assert.deepEqual(r.draft.unsure, ['pills']);
+});
+
+test('จำนวนเม็ด BR-04: จำนวนที่จ่าย ("# 30 เม็ด", "จำนวน 6 เม็ด") และช่วง "1-2 เม็ด" ไม่ใช่จำนวนต่อครั้ง → ว่าง', () => {
+  assert.equal(parseLabel('METFORMIN 500 MG\nหลังอาหารเช้า\nจำนวน 6 เม็ด').draft.pills, null);
+  assert.equal(parseLabel('METFORMIN 500 MG\nหลังอาหารเช้า\n# 7 เม็ด').draft.pills, null);
+  assert.equal(parseLabel('IBUPROFEN 400 MG\nครั้งละ 1-2 เม็ด หลังอาหารเช้า').draft.pills, null);
+  // "# 30 เม็ด" หน้า "ก่อนนอน" ไม่ใช่จำนวนเม็ดของมื้อก่อนนอน
+  const r = parseLabel('AMITRIPTYLINE 10 MG\nรับประทานครั้งละ 1 เม็ด\n#30เม็ด ก่อนนอน');
+  assert.deepEqual(r.draft.timings, [{ type: 'bedtime', slot: null, minutesBefore: null }]);
+});
+
+test('มื้อ: "หลังอาหาร 3 เวลา" / "ทุกมื้อ" = เช้า กลางวัน เย็น · "วันละ 3 ครั้ง" อย่างเดียวไม่เติมมื้อ', () => {
+  const slots = (text) => parseLabel('X 5 MG\nครั้งละ 1 เม็ด\n' + text).draft.timings.map((t) => t.slot);
+  assert.deepEqual(slots('หลังอาหาร 3 เวลา'), ['morning', 'noon', 'evening']);
+  assert.deepEqual(slots('ก่อนอาหาร 30 นาที ทุกมื้อ').length, 1); // "ทุกมื้อ" ไม่ติดคำบอกเวลา → ไม่เดา
+  assert.deepEqual(slots('หลังอาหารทุกมื้อ'), ['morning', 'noon', 'evening']);
+  assert.deepEqual(slots('วันละ 3 ครั้ง หลังอาหาร'), [null]);
+});
+
+test('นาทีแบบย่อ: "30 น." → 30 · "1 ชม." → 60 · เวลานาฬิกา "07.30 น." ไม่ใช่ 30 นาที', () => {
+  const min = (text) => parseLabel('X 5 MG\nครั้งละ 1 เม็ด\n' + text).draft.timings[0].minutesBefore;
+  assert.equal(min('ก่อนอาหารเช้า 30 น.'), 30);
+  assert.equal(min('ก่อนอาหารเช้า 1 ชม.'), 60);
+  assert.equal(min('ก่อนอาหารเช้า เวลา 07.30 น.'), null);
+});
+
 test('AI: ผลปกติ → ร่างเดียวกับ OCR (เช้า 2 เม็ด เย็น 1 เม็ด)', () => {
   const r = fromAI(parseAIText('```json\n{"name":"METFORMIN 500 MG","pills":2,"timings":[{"type":"after","slot":"morning","pills":2},{"type":"after","slot":"evening","pills":1}],"caution":null,"contraindication":null,"unsupported":null,"readable":true}\n```'));
   assert.equal(r.ok, true);
