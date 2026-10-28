@@ -1,6 +1,6 @@
 # Final Project Report — MedMind
 
-> สถานะ: **ร่าง** — §1–3, §7, §8 (บางส่วน), §9 (บางส่วน), §10 เขียนแล้ว · §4 มีส่วน #48 แล้ว รอ #47 · §5 มีส่วน #46/#48 แล้ว รอ #47/#49/#50 · §6 รอ #50
+> สถานะ: **ร่าง** — §1–3, §7, §8 (บางส่วน — ใส่เฉพาะงานที่มี commit แล้ว), §9 (บางส่วน), §10 เขียนแล้ว · §4 มีส่วน #48 แล้ว รอ #47 · §5 มีส่วน #46/#48 แล้ว รอ #47/#49/#50 · §6 รอ #50
 > ทุกข้อความในรายงานสรุปจาก Charter และ SRS — ถ้าขัดกัน ให้ยึด `spec.md` เป็นต้นฉบับ
 
 ---
@@ -13,8 +13,8 @@
 | **รายวิชา** | Intro to Software Engineering (15031001) · ปีการศึกษา 2569 · School of Applied Digital Technology, Mae Fah Luang University |
 | **ทีม** | MedMind |
 | **Repo** | https://github.com/yaroo393-png/SE-Project |
-| **Demo** | **[ใส่ลิงก์ prototype เมื่อมี]** |
-| **วันที่ส่ง** | 11 ต.ค. 2569 |
+| **Demo** | https://yaroo393-png.github.io/SE-Project/ (GitHub Pages — เริ่มที่หน้าเลือกบทบาท) |
+| **วันที่ส่งและนำเสนอ** | 9 พ.ย. 2569 |
 
 | ชื่อ–นามสกุล | รหัสนักศึกษา | GitHub | บทบาท |
 |---|---|---|---|
@@ -64,7 +64,7 @@
 
 ## 3. สรุป Requirements (จาก M2 — `spec.md`)
 
-**SDLC:** Incremental — สร้างวงจร เตือน → ยืนยัน → แจ้งผู้ดูแล (FR-03–05) ก่อน แล้วจึงเพิ่มจับคู่ + OCR (FR-01, FR-02) (`charter.md` §8)
+**SDLC:** Incremental — สร้างวงจร เตือน → ยืนยัน → แจ้งผู้ดูแล (FR-03–05) ก่อน แล้วจึงเพิ่มจับคู่ + OCR (FR-01, FR-02) (`charter.md` §8) · ลำดับจริงเปลี่ยน: FR-02 (สแกนฉลาก) เสร็จก่อน — เหตุผล **[PM ยืนยันเหตุผล]** · แผนใหม่ย้อนจากวันส่งและนำเสนอ 9 พ.ย. 2569 ใน `charter.md` §8 "ปรับแผน"
 
 ### Functional requirements (MoSCoW — `spec.md` §3, §3.6)
 
@@ -91,7 +91,9 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 หลัง T+15 → ยืนยันช้าได้จนถึงเวลาเตือนของมื้อถัดไป
 ```
 
-**ข้อจำกัด:** ระบบเป็นเว็บแอป — MVP เตือน Senior และแจ้ง Caregiver เฉพาะขณะหน้าเว็บเปิดค้างไว้; เสียงเตือนเล่นได้หลังผู้ใช้แตะหน้าเว็บครั้งแรก (`spec.md` §2.2)
+**ข้อจำกัด (`spec.md` §2.2):**
+- ระบบเป็นเว็บแอป — MVP เตือน Senior และแจ้ง Caregiver เฉพาะขณะหน้าเว็บเปิดค้างไว้; เสียงเตือนเล่นได้หลังผู้ใช้แตะหน้าเว็บครั้งแรก
+- M3 prototype: prototype ไม่มี server / ฐานข้อมูล — ข้อมูลอยู่ใน localStorage ของเบราว์เซอร์ · **การแจ้งเตือนและเวลาเป็นการจำลอง** · **การอ่านฉลาก (FR-02) ทำจริงในเบราว์เซอร์** ด้วย Tesseract.js — รูปไม่ถูกส่งออกนอกเครื่อง (NFR-09) และอาจอ่านผิด ผู้ดูแลต้องตรวจทุกช่องก่อนบันทึก (BR-04)
 
 ### Non-functional requirements (`spec.md` §4)
 
@@ -104,7 +106,7 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 | NFR-05 | privacy | เชื่อมต่อก่อน Senior ยินยอม = 0 ครั้ง | Must (MVP) |
 | NFR-06 | safety | ข้อมูลยาที่บันทึกโดยไม่ผ่านการตรวจของ Caregiver = 0 รายการ | Must (MVP) |
 | NFR-07 | reliability | กดยืนยันซ้ำกี่ครั้ง มีบันทึกของมื้อนั้น 1 รายการ | Must (MVP) |
-| NFR-08 | performance | ร่างที่อ่านจากรูปฉลากแสดงใน 10 วินาที ใน ≥ 18 จาก 20 ฉลาก (ตรวจได้เมื่อมีการอ่านฉลากจริง) | Should |
+| NFR-08 | performance | ร่างที่อ่านจากรูปฉลากแสดงใน 10 วินาที ใน ≥ 18 จาก 20 ฉลาก (ฉลากจำลอง 108/108 แล้ว · ฉลากจริงยังไม่ได้วัด) | Should |
 | NFR-09 | privacy / PDPA | ไม่เก็บเลขบัตร ที่อยู่ วันเกิด เบอร์โทร HN (0 field) | Must (MVP) |
 | NFR-10 | privacy / PDPA | หลังยกเลิกการจับคู่ ดูข้อมูลได้ 0 ครั้ง และข้อมูลของคู่นั้นเหลือ 0 รายการ | Must (MVP) |
 
@@ -168,10 +170,10 @@ T+15   ยังไม่ยืนยัน → แจ้ง Caregiver "ยั�
 
 | สมาชิก | งานที่รับผิดชอบ | Issue | หลักฐาน |
 |---|---|---|---|
-| YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | [#22](https://github.com/yaroo393-png/SE-Project/issues/22), [#23](https://github.com/yaroo393-png/SE-Project/issues/23), [#51](https://github.com/yaroo393-png/SE-Project/issues/51), [#30](https://github.com/yaroo393-png/SE-Project/issues/30), [#31](https://github.com/yaroo393-png/SE-Project/issues/31), [#32](https://github.com/yaroo393-png/SE-Project/issues/32) | Charter/SRS/Backlog: [PR ที่ merge แล้วทั้งหมดของ yaroo393-png](https://github.com/yaroo393-png/SE-Project/pulls?q=is%3Apr+is%3Amerged+author%3Ayaroo393-png) (บางส่วนร่างด้วย AI ดู §7) · commit: [`b390fac`](https://github.com/yaroo393-png/SE-Project/commit/b390fac), [`6d84a27`](https://github.com/yaroo393-png/SE-Project/commit/6d84a27), [`1fb8925`](https://github.com/yaroo393-png/SE-Project/commit/1fb8925), [`430bf68`](https://github.com/yaroo393-png/SE-Project/commit/430bf68), [`d99fd5d`](https://github.com/yaroo393-png/SE-Project/commit/d99fd5d), [`bf594a0`](https://github.com/yaroo393-png/SE-Project/commit/bf594a0) |
-| Takkan Khanlui | Architecture, Use Case, Sequence, State Machine, ERD | [#47](https://github.com/yaroo393-png/SE-Project/issues/47) | **[ใส่ commit เมื่อมี]** |
-| Rossatorn Sangkaew | จัดโครงหน้าเว็บ, FR-02 จัดการยา (logic + tests + ฟอร์ม + เวลามื้อ), Design tokens, Screen Map, Error/empty states และ CSS ของ prototype; Demo Slides ตามงานเดิม | [#46](https://github.com/yaroo393-png/SE-Project/issues/46), [#48](https://github.com/yaroo393-png/SE-Project/issues/48) | [คู่มือโค้ดและขอบเขต](../../prototype/FR02-IDK-SleepyBro.md) · [PR #57](https://github.com/yaroo393-png/SE-Project/pull/57) ได้รับรีวิวและ merge เข้า `main` แล้ว (28 ต.ค. 2569); ใช้ AI ช่วยตาม `spec.md` §8 |
-| Nichanan Lalua | Prototype Increment 1–2, ข้อมูลสมาชิกใน Charter §9 | [#49](https://github.com/yaroo393-png/SE-Project/issues/49) | ข้อมูลสมาชิกใน Charter §9 (9 ต.ค.) · prototype **[ใส่ commit เมื่อมี]** |
+| YAR OO | Team Charter, SRS, Product Backlog, README, วางแผนและแจกงาน, รวมเล่มรายงาน | [#22](https://github.com/yaroo393-png/SE-Project/issues/22), [#23](https://github.com/yaroo393-png/SE-Project/issues/23), [#51](https://github.com/yaroo393-png/SE-Project/issues/51), [#30](https://github.com/yaroo393-png/SE-Project/issues/30), [#31](https://github.com/yaroo393-png/SE-Project/issues/31), [#32](https://github.com/yaroo393-png/SE-Project/issues/32) | Charter/SRS/Backlog: [PR ที่ merge แล้วทั้งหมดของ yaroo393-png](https://github.com/yaroo393-png/SE-Project/pulls?q=is%3Apr+is%3Amerged+author%3Ayaroo393-png) (บางส่วนร่างด้วย AI ดู §7) · FR-02 สแกนฉลาก + CI + หน้าเลือกบทบาท: PR [#44](https://github.com/yaroo393-png/SE-Project/pull/44), [#45](https://github.com/yaroo393-png/SE-Project/pull/45), [#52](https://github.com/yaroo393-png/SE-Project/pull/52), [#53](https://github.com/yaroo393-png/SE-Project/pull/53), [#54](https://github.com/yaroo393-png/SE-Project/pull/54) · commit: [`b390fac`](https://github.com/yaroo393-png/SE-Project/commit/b390fac), [`6d84a27`](https://github.com/yaroo393-png/SE-Project/commit/6d84a27), [`1fb8925`](https://github.com/yaroo393-png/SE-Project/commit/1fb8925), [`430bf68`](https://github.com/yaroo393-png/SE-Project/commit/430bf68), [`d99fd5d`](https://github.com/yaroo393-png/SE-Project/commit/d99fd5d), [`bf594a0`](https://github.com/yaroo393-png/SE-Project/commit/bf594a0) |
+| Takkan Khanlui | Architecture, Use Case, Sequence, State Machine, ERD | [#47](https://github.com/yaroo393-png/SE-Project/issues/47) | แผนภาพ draw.io `docs/03-design/medmind.drawio.pdf` [`63eca6a`](https://github.com/yaroo393-png/SE-Project/commit/63eca6a) (12 ต.ค.) · ทดลอง OCR `test.py` [`bb48897`](https://github.com/yaroo393-png/SE-Project/commit/bb48897) (25 ก.ย.) · งานตาม #47 **[ใส่ commit เมื่อมี]** |
+| Rossatorn Sangkaew | จัดโครงหน้าเว็บ, FR-02 จัดการยา (logic + tests + ฟอร์ม + เวลามื้อ), Design tokens, Screen Map, Error/empty states และ CSS ของ prototype; Demo Slides ตามงานเดิม | [#46](https://github.com/yaroo393-png/SE-Project/issues/46), [#48](https://github.com/yaroo393-png/SE-Project/issues/48) | [คู่มือโค้ดและขอบเขต](../../prototype/FR02-IDK-SleepyBro.md) · [PR #57](https://github.com/yaroo393-png/SE-Project/pull/57) ได้รับรีวิวและ merge เข้า `main` แล้ว (28 ต.ค. 2569); ใช้ AI ช่วยตาม `spec.md` §8 · หน้าเว็บ prototype `prototype/MedMind-Responsive/` (ก่อนย้ายโครงใน #57) (หน้าผู้สูงอายุ, หน้าผู้ดูแล, `styles.css`, `app.js`, `flows.js`) 16–18 ต.ค.: [`2f1ade4`](https://github.com/yaroo393-png/SE-Project/commit/2f1ade4), [`7565a1c`](https://github.com/yaroo393-png/SE-Project/commit/7565a1c), [`0970dcb`](https://github.com/yaroo393-png/SE-Project/commit/0970dcb), [`7487f58`](https://github.com/yaroo393-png/SE-Project/commit/7487f58), [`b047a85`](https://github.com/yaroo393-png/SE-Project/commit/b047a85), [`be7e60d`](https://github.com/yaroo393-png/SE-Project/commit/be7e60d), [`1949d3d`](https://github.com/yaroo393-png/SE-Project/commit/1949d3d), [`b2acbed`](https://github.com/yaroo393-png/SE-Project/commit/b2acbed) |
+| Nichanan Lalua | Prototype Increment 1–2, ข้อมูลสมาชิกใน Charter §9 | [#49](https://github.com/yaroo393-png/SE-Project/issues/49) | ตรรกะเตือน/ยืนยัน + เทสต์ 23 ข้อ (`reminder.js`, `confirm.js`, `reminder.confirm.test.js`) [`0e723dc`](https://github.com/yaroo393-png/SE-Project/commit/0e723dc) (15 ต.ค.) · ข้อมูลสมาชิกใน Charter §9 (9 ต.ค.) · ต่อหน้าเว็บตาม #49 **[ใส่ commit เมื่อมี]** |
 | Suchitra Khomdee | Test plan, automated test, ทดสอบกับผู้ใช้ | [#50](https://github.com/yaroo393-png/SE-Project/issues/50) | **[ใส่ commit เมื่อมี]** |
 
 ---
