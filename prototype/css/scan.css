@@ -18,7 +18,3 @@ body[data-theme="dark"] .scan-status.ok { background: #173a29; color: #7fd9a4; }
 body[data-theme="dark"] .scan-status.warn { background: #3a2717; color: #f3b98a; }
 body[data-theme="dark"] .scan-status.danger { background: #3d1a17; color: #ff9b91; }
 body[data-theme="dark"] #medicine-form .needs-review { border-color: #ff9b91 !important; box-shadow: 0 0 0 2px rgba(255, 155, 145, .3); }
-
-/* ฟอร์มเพิ่มยายาวกว่าจอเมื่อมีรูปฉลาก + ผลสแกน → ให้กล่องเลื่อนได้ ปุ่ม "บันทึก" จะไม่หลุดจอบนมือถือ
-   (ควรย้ายไปไว้ใน styles.css ของหน้า demo — แจ้ง Rossatorn แล้ว) */
-.modal-backdrop .modal { max-height: calc(100vh - 36px); max-height: calc(100dvh - 36px); overflow-y: auto; }

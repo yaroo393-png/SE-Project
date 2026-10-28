@@ -75,3 +75,6 @@ body[data-theme="dark"] button:focus-visible,
 body[data-theme="dark"] a:focus-visible,
 body[data-theme="dark"] input:focus-visible,
 body[data-theme="dark"] select:focus-visible { outline-color: #d9f27a; }.setting-card .switch-state { display: block; min-width: 40px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.2; font-weight: 700; text-align: right; white-space: nowrap; }
+
+/* ฟอร์มเพิ่มยาเลื่อนได้บนจอเล็ก ปุ่มบันทึกยังอยู่ในกล่องเดียวกัน (Issue #46) */
+.modal-backdrop .modal { max-height: calc(100vh - 36px); max-height: calc(100dvh - 36px); overflow-y: auto; }

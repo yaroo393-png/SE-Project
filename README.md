@@ -17,9 +17,9 @@
 |---|---|
 | M1 Charter | ฉบับปรับปรุง (ข้อมูลสมาชิกกรอกแล้ว · กำหนดเสร็จ Increment ใน §8 ใส่แล้ว) |
 | M2 SRS / Requirements | SRS v2.0 ร่างแล้ว (`spec.md`): FR-01..08 (Must 5 · Should 1 · Could 2), BR-01..17, AC, NFR-01..10, Use case, Traceability — ยังรอ: Use-case diagram, แถวว่างใน AI log (§8) |
-| M2 Design | โครง: `architecture.md` (มีแค่ตาราง Module & Event), `design-system.md` (หัวข้อ), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#47), Screen Map (#48) |
-| M3 Prototype | บางส่วน: หน้าเว็บ `prototype/MedMind-Responsive/` (ผู้สูงอายุ `index.html` · ผู้ดูแล `caregiver.html`) มีจับคู่ด้วยรหัส/QR ในเบราว์เซอร์ และ**สแกนฉลากจริง** (อ่านในเบราว์เซอร์ → เติมฟอร์มเพิ่มยา) · ตรรกะ `prototype/js/logic/` (FR-02 สแกน, FR-03, FR-04, FR-05 บางข้อ) — ยังรอ: แยกไฟล์หน้าเว็บ (#46), จับคู่ครบ AC (#47), ตั้งเวลามื้อ + ฟอร์มยาตามช่องของ FR-02 (#48), ต่อหน้าเว็บเข้ากับ `reminder.js` / `confirm.js` — เตือนซ้ำ T+5/T+10, ปุ่ม "ยังไม่กิน" (#49), สถานะ + แจ้ง T+15 (#50) |
-| Automated tests | `npm test` → `prototype/tests/`: 80 เทสต์ — reminder + confirm 23 (BR-06, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ) · labelParser 35 + labelForm 10 (FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, BR-04, NFR-09 · รวมข้อความที่ OCR อ่านเพี้ยนจริง) · store 6 (BR-05) · role 6 (เลือกบทบาท, FR-01) — ผ่าน 80/80 (รัน 22 ต.ค. 2569, Node 22) · CI รัน test + lint + ตรวจความลับทุก PR · ยังไม่มีเทสต์ FR-01 (#47) และยังไม่ทดสอบกับผู้ใช้ (#50) |
+| M2 Design | `design-system.md`: tokens, components, Screen Map และ error/empty states ของงาน #48 · `architecture.md` (มีแค่ตาราง Module & Event), `medmind.drawio.pdf` — ยังรอ: diagram + ERD ใน md (#47) |
+| M3 Prototype | หน้าเว็บอยู่ที่ `prototype/` หลังจัดโครง #46 · FR-02 จัดการยา #48: ตั้งเวลามื้อ ฟอร์มเพิ่ม/แก้/ลบยา หลายมื้อ ก่อน/หลังอาหาร/ก่อนนอน และแสดงเวลาเตือนก่อนบันทึก · ระบบสแกนเดิมของ YAR OO อ่านในเบราว์เซอร์ → เติมร่างให้ผู้ดูแลตรวจ · งาน FR-01, FR-03–05 ที่ยังไม่ครบติดตามใน #47, #49, #50 ไม่เปลี่ยนสถานะงานเพื่อนในรอบนี้ |
+| Automated tests | ผล 26 ต.ค. 2569: `npm run check` ผ่าน 110/110 เทสต์ (เดิม 80 + medication 30), ESLint และตรวจความลับผ่าน · DOM integration เพิ่มเติมผ่าน 22 scenarios โดย AI agent (เครื่องมือตรวจติดตั้งนอก repo ไม่เพิ่ม dependency โปรเจกต์) · ยังไม่มีผล visual QA ในเบราว์เซอร์หรือผลทดสอบผู้ใช้จริง (#50) |
 | Final Report / AI-Use Statement | ร่างแล้ว: Report §1–3, §7–10 (§8–9 บางส่วน) · AI-Use Statement สรุปจาก `spec.md` §8 — ยังรอ: §4 Design, §5 Prototype, §6 ผลทดสอบ |
 
 > README นี้จะอัปเดตเมื่อมีผลจริง ช่อง **[ ]** = ยังไม่มีข้อมูลจริง ไม่เดา
@@ -76,7 +76,7 @@ docs/
 │   └── backlog.md            # Product Backlog: MoSCoW รายข้อ + Traced pain + สถานะการพัฒนา
 ├── 03-design/
 │   ├── architecture.md       # M2: Architecture, Use Case/Sequence/State, ERD, Module & Event (โครง — มีแค่ตาราง Module & Event)
-│   └── design-system.md      # M2: Design tokens, Screen Map (หน้าจอ ↔ FR), error/empty states (โครง)
+│   └── design-system.md      # M2: Design tokens, Screen Map (หน้าจอ ↔ FR), error/empty states
 ├── 05-report/
 │   ├── final-report.md       # M3: Final Report + Golden Thread table (ร่าง — §4–6 รอ Design / Prototype / Test)
 │   └── ai-use-statement.md   # M3: บันทึกการใช้ AI ตามจริง (ร่าง — สรุปจาก spec.md §8)
@@ -84,13 +84,18 @@ docs/
 │   └── demo-slides.md        # M3: โครง Demo (Problem → Solution) (โครง)
 prototype/
 ├── README.md                 # วิธีเปิด + ไฟล์ของแต่ละฟีเจอร์
-├── MedMind-Responsive/       # หน้าเว็บ demo (Rossatorn): index.html (ผู้สูงอายุ), caregiver.html (ผู้ดูแล), styles.css, app.js, flows.js
-│                             #   + role.html (หน้าแรก: เลือกบทบาท), demo.html (ดูทั้ง 2 บทบาทพร้อมกัน) — YAR OO
+├── index.html, caregiver.html # หน้าเว็บผู้สูงอายุ / ผู้ดูแล — โครงหน้า Rossatorn + จุดเชื่อมฟีเจอร์ของทีม
+├── role.html, demo.html      # หน้าเลือกบทบาท / ดูทั้ง 2 บทบาท — YAR OO (ย้าย path ใน #46)
+├── figma-IDK-SleepyBro/      # ต้นแบบออกแบบเดิมของ Rossatorn เก็บแยกจากฟีเจอร์ที่ต่อข้อมูลจริง
+├── FR02-IDK-SleepyBro.md     # คู่มืออ่านโค้ด FR-02 + ลำดับ demo สำหรับ oral exam
 ├── css/
+│   ├── styles.css            # โครงหน้าและ design tokens — Rossatorn
+│   ├── medication.css        # สไตล์ FR-02 ตาม Figma แยกขอบเขตจากหน้าเดิม — Rossatorn
 │   ├── scan.css              # กล่องผลสแกนในฟอร์มเพิ่มยา (YAR OO)
 │   └── role.css              # หน้าเลือกบทบาท + ดูทั้ง 2 บทบาท (YAR OO)
 ├── js/
 │   ├── core/
+│   │   ├── app.js            # โครงหน้า เมนู ภาษา ธีม — Rossatorn (จัดรูปแบบจากไฟล์เดิม)
 │   │   ├── store.js          # ชื่อ key ใน localStorage + เวลามื้ออาหาร — ข้อมูลร่วมทุกฟีเจอร์ (PM)
 │   │   └── role.js           # บทบาทในแท็บนี้ + กันเข้าหน้าแอปก่อนเลือกบทบาท (FR-01) (PM)
 │   ├── logic/                # ตรรกะล้วน ไม่แตะหน้าจอ — มีเทสต์ทุกไฟล์
@@ -99,18 +104,21 @@ prototype/
 │   │   ├── labelParser.js    # ข้อความจากฉลาก → ร่างข้อมูลยา (FR-02, BR-04, BR-07, NFR-09) — YAR OO
 │   │   ├── labelForm.js      # ร่าง → ค่าในฟอร์มเพิ่มยา + เวลาเตือนจากเวลามื้อ (FR-02, BR-06) — YAR OO
 │   │   ├── pairing.js        # (ยังไม่มี — #47) รหัสเชิญ / ยินยอม / ยกเลิก (FR-01) — Takkan
-│   │   ├── medication.js     # (ยังไม่มี — #48) ตรวจฟอร์มยา + เวลามื้อ (FR-02, BR-03–07) — Rossatorn
+│   │   ├── medication.js     # ตรวจร่าง คำนวณเวลา บันทึก/ลบยา (FR-02, BR-03–07) — Rossatorn
 │   │   └── status.js         # (ยังไม่มี — #50) สถานะรายวัน + ข้อความถึงผู้ดูแล (FR-05) — Suchitra
 │   ├── services/
 │   │   └── scanner.js        # อ่านตัวหนังสือจากรูปในเบราว์เซอร์ (Tesseract.js) — YAR OO
 │   └── features/             # การทำงานบนหน้าจอของแต่ละฟีเจอร์
+│       ├── medicine.js       # ฟอร์มยา + เวลามื้อ + เชื่อมร่างจากสแกน — Rossatorn
+│       ├── pairing.js        # ย้ายโค้ดจับคู่เดิมจาก flows.js เพื่อให้ Takkan เขียนต่อ (#47)
 │       ├── scan.js           # สแกนฉลาก → เติมฟอร์มเพิ่มยา (FR-02) — YAR OO
 │       ├── roleSelect.js     # ปุ่มเลือกบทบาทในหน้า role.html / demo.html — YAR OO
-│       └── <ฟีเจอร์>.js       # (ยังไม่มี) pairing #47 (Takkan) · medicine #46 #48 (Rossatorn) · reminder #49 (Nichanan) · caregiverStatus #50 (Suchitra)
+│       └── <ฟีเจอร์>.js       # งานต่อของเพื่อน: reminder #49 (Nichanan) · caregiverStatus #50 (Suchitra)
 └── tests/                    # npm test — ชื่อไฟล์ตามไฟล์ใน js/logic/ และ js/core/
     ├── reminder.confirm.test.js
     ├── labelParser.test.js, labelForm.test.js, store.test.js
-    └── <ฟีเจอร์>.test.js       # (ยังไม่มี) pairing #47 · medication #48 · status #50
+    ├── medication.test.js    # FR-02 AC การตรวจร่าง เวลา บันทึก/แก้/ลบ/ยกเลิก — Rossatorn
+    └── <ฟีเจอร์>.test.js       # งานต่อของเพื่อน: pairing #47 · status #50
 .github/
 ├── workflows/ci.yml          # CI ทุก push / PR: unit test + ESLint + ตรวจความลับ
 └── pull_request_template.md  # ช่อง Golden Thread + checklist ก่อนขอรีวิว
@@ -131,12 +139,13 @@ CLAUDE.md                     # คำสั่งสำหรับ Claude Code
 Prototype เป็น HTML/CSS/JS เปิดในเบราว์เซอร์ได้โดยตรง **ไม่ต้องมี server หรือฐานข้อมูล** (ข้อมูลเป็นข้อมูลจำลอง; การแจ้งเตือนและเวลาเป็นการจำลอง)
 
 1. เปิดผ่านลิงก์ GitHub Pages: **<https://yaroo393-png.github.io/SE-Project/>** — เปิดในมือถือได้ หน้าแรกพาไปหน้าเลือกบทบาท
-2. หรือดาวน์โหลด repo แล้วเปิด [`index.html`](index.html) (หรือ [`prototype/MedMind-Responsive/role.html`](prototype/MedMind-Responsive/role.html)) ด้วยเบราว์เซอร์ → **เลือกบทบาทก่อนเข้าแอป**:
+2. หรือดาวน์โหลด repo แล้วเปิด [`index.html`](index.html) (หรือ [`prototype/role.html`](prototype/role.html)) ด้วยเบราว์เซอร์ → **เลือกบทบาทก่อนเข้าแอป**:
    - **ผู้สูงอายุ (Senior)** → หน้า `index.html` · **ลูกหลาน / ผู้ดูแล (Caregiver)** → หน้า `caregiver.html` (เปิดหน้าแอปตรง ๆ ก่อนเลือกบทบาทจะถูกพากลับหน้าเลือกบทบาท)
-   - จำลองมือถือ 2 เครื่อง: เปิด 2 แท็บในเบราว์เซอร์เดียวกัน เลือกคนละบทบาท (ใช้ข้อมูลชุดเดียวกันใน localStorage) · หรือกด "ดูทั้ง 2 บทบาทพร้อมกัน" ([`demo.html`](prototype/MedMind-Responsive/demo.html)) สำหรับนำเสนอ
+   - จำลองมือถือ 2 เครื่อง: เปิด 2 แท็บในเบราว์เซอร์เดียวกัน เลือกคนละบทบาท (ใช้ข้อมูลชุดเดียวกันใน localStorage) · หรือกด "ดูทั้ง 2 บทบาทพร้อมกัน" ([`demo.html`](prototype/demo.html)) สำหรับนำเสนอ
    - เปลี่ยนบทบาท: ปุ่มลูกศรสลับด้านบนของแอป
 3. สแกนฉลาก (FR-02): หน้าผู้ดูแล → ยา → เพิ่มรายการยา → ถ่ายภาพ/เลือกรูปฉลาก หรือเลือก "ฉลากตัวอย่าง" (ใช้ได้แม้ไม่มีเน็ต)
    - การอ่านรูปทำในเบราว์เซอร์ รูปไม่ถูกส่งออก · ครั้งแรกต้องต่ออินเทอร์เน็ตเพื่อโหลดตัวอ่าน (~4 MB)
+   - ครั้งแรกตั้งเวลามื้อเช้า/กลางวัน/เย็น/เข้านอน แล้วตรวจชื่อยา จำนวนเม็ด มื้อและนาทีตามฉลากก่อนบันทึก · อ่านลำดับ demo และโค้ดใน [คู่มือ FR-02 ของ IDK-SleepyBro](prototype/FR02-IDK-SleepyBro.md)
 
 ### 2. วิธีรันชุดทดสอบอัตโนมัติ (Automated Tests)
 ต้องมี Node.js 21 ขึ้นไป — รันจากโฟลเดอร์บนสุดของ repo (Windows PowerShell ใช้ `npm.cmd` แทน `npm`):
@@ -145,7 +154,9 @@ npm test             # unit test ทั้งหมดใน prototype/tests/ (�
 npm install          # ครั้งแรกครั้งเดียว สำหรับคำสั่งด้านล่าง
 npm run check        # test + ตรวจคุณภาพโค้ด (ESLint) + ตรวจว่าไม่มีรหัสลับ — รันก่อน push
 ```
-ผลลัพธ์ (รัน 22 ต.ค. 2569, Node 22): **ผ่าน 80 / ไม่ผ่าน 0** — ครอบคลุม BR-05, BR-06, FR-02 ✓1 ✓6 ✓8 ✓9 ✗3 ✗4 ✗5 ✗10, FR-03 AC 1–4, FR-04 AC 1–6, FR-05 บางข้อ, NFR-09 · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
+ผลล่าสุด (26 ต.ค. 2569): **ผ่าน 110 / ไม่ผ่าน 0** — เทสต์เดิม 80 + `medication.test.js` 30; `npm run check` ผ่าน ESLint และการตรวจความลับด้วย · CI รันชุดเดียวกันทุก push / PR (แท็บ Actions)
+
+ตรวจ DOM integration เพิ่มเติมผ่าน 22 scenarios (การเลือกบทบาท ตั้งเวลามื้อ ร่าง/preview/บันทึก/แก้/ลบ/ยกเลิกยา หลายมื้อ ก่อนนอน การกู้ฟอร์มหลังสแกนไม่ได้ และ escape ข้อความ) ด้วย jsdom นอก repo ไม่มี package โปรเจกต์เพิ่ม การเปิด `file://` ในเครื่องมือตรวจเบราว์เซอร์ถูกนโยบายเครื่องมือจำกัด จึงยังไม่ได้ตรวจภาพจริงบน desktop/mobile หรือกล้อง/OCR จริงรอบนี้ ทีมต้องเปิดหน้า `role.html` / `demo.html` ตรวจหน้าจอก่อน merge
 
 ---
 
@@ -165,7 +176,7 @@ npm run check        # test + ตรวจคุณภาพโค้ด (ESLint
 |---|---|---|---|---|
 | YAR OO | [yaroo393-png](https://github.com/yaroo393-png) | Project Manager | **FR-02 สแกนฉลาก** + ข้อมูลร่วม (`store.js`), หน้าเลือกบทบาท, CI · รวมเล่มรายงาน (#51) | `js/logic/labelParser.js`, `labelForm.js` · `js/services/scanner.js` · `js/features/scan.js`, `roleSelect.js` · `js/core/store.js`, `role.js` · `role.html`, `demo.html` |
 | Takkan Khanlui | [V31311](https://github.com/V31311) | System Designer | **FR-01 จับคู่** · Design doc (#47) | `js/logic/pairing.js` · `js/features/pairing.js` |
-| Rossatorn Sangkaew | [IDK-SleepyBro](https://github.com/IDK-SleepyBro) | UX/UI Designer | **FR-02 จัดการยา** (เวลามื้อ, ฟอร์มยา) · หน้าเว็บ + Design system (#46, #48) | `js/logic/medication.js` · `js/features/medicine.js` · หน้าเว็บ demo |
+| Rossatorn Sangkaew | [IDK-SleepyBro](https://github.com/IDK-SleepyBro) | UX/UI Designer | **FR-02 จัดการยา** (เวลามื้อ, ฟอร์มยา) · หน้าเว็บ + Design system (#46, #48) | `js/logic/medication.js` · `tests/medication.test.js` · `js/features/medicine.js` · `js/core/app.js` · `css/styles.css` · `index.html`, `caregiver.html` · `docs/03-design/design-system.md` |
 | Nichanan Lalua | [KaidangSuk](https://github.com/KaidangSuk) | Prototype Developer | **FR-03 เตือน + FR-04 ยืนยัน** (#49) | `js/logic/reminder.js`, `confirm.js` · `js/features/reminder.js` |
 | Suchitra Khomdee | [Khaiwann](https://github.com/Khaiwann) | QA / Tester | **FR-05 สถานะ + แจ้งผู้ดูแล** · แผนและผลทดสอบ (#50) | `js/logic/status.js` · `js/features/caregiverStatus.js` |
 

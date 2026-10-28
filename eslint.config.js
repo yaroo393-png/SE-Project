@@ -1,11 +1,10 @@
 // ตรวจคุณภาพโค้ด (M4: Basic quality check) — รัน: npm run lint
-// ตรวจเฉพาะโค้ดที่แยกไฟล์ตามฟีเจอร์แล้ว (prototype/js/, prototype/tests/, scripts/)
-// หน้า demo เดิมใน prototype/MedMind-Responsive/ จะเข้าระบบตรวจเมื่อย้ายและแยกไฟล์เสร็จ (Issue ของ Rossatorn)
+// ตรวจโค้ดทุกฟีเจอร์ รวมโครงหน้าเว็บที่ย้ายและแยกแล้ว (Issue #46)
 const js = require('@eslint/js');
 const globals = require('globals');
 
 module.exports = [
-  { ignores: ['node_modules/**', 'prototype/MedMind-Responsive/**'] },
+  { ignores: ['node_modules/**'] },
   js.configs.recommended,
   {
     files: ['prototype/js/**/*.js'],
