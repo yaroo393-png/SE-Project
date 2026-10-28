@@ -156,6 +156,29 @@ Intro to Software Engineering · ปีการศึกษา 2569 · Mileston
 
 วางแผน: 8 ต.ค. 2569 · กำหนดส่ง M3: วันอาทิตย์ 11 ต.ค. 2569
 
+### ปรับแผน (26 ต.ค. 2569) — ลำดับงานจริงไม่ตรงกับแผนเดิม
+
+กำหนดเดิม (10–11 ต.ค.) ผ่านไปแล้ว และลำดับที่ทำจริงต่างจากแผน — บันทึกตามจริงจาก GitHub:
+
+| ลำดับจริง | สิ่งที่เสร็จ (หลักฐาน) | FR |
+|---|---|---|
+| 15 ต.ค. | ตรรกะเวลาเตือน / ยืนยัน + เทสต์ 23 ข้อ (`reminder.js`, `confirm.js`) — ยังไม่ต่อกับหน้าเว็บ ([#49](https://github.com/yaroo393-png/SE-Project/issues/49)) | FR-03, FR-04, FR-05 (ตรรกะ) |
+| 16–18 ต.ค. | หน้าเว็บ prototype ผู้สูงอายุ / ผู้ดูแล (`MedMind-Responsive/`) | ทุก FR (หน้าตา) |
+| 20–25 ต.ค. | สแกนฉลากในฟอร์มเพิ่มยา + CI ([#45](https://github.com/yaroo393-png/SE-Project/pull/45), [#53](https://github.com/yaroo393-png/SE-Project/pull/53)) · หน้าเลือกบทบาท ([#53](https://github.com/yaroo393-png/SE-Project/pull/53)) | **FR-02** ก่อน FR-03–05 |
+
+- **เหตุผลที่ลำดับเปลี่ยน:** **[PM ยืนยันเหตุผล]**
+- ผลกระทบ: วงจรหลัก เตือน → ยืนยัน → แจ้งผู้ดูแล ยังคลิกไม่ได้ครบบนหน้าเว็บ · จึงหยุดพัฒนาความแม่นของการอ่านฉลากไว้ก่อน (ยอมรับความเสี่ยง) จนกว่า FR-01, 03, 04, 05 จะคลิกได้ครบ
+
+**แผนใหม่ — ย้อนจากวันส่งและนำเสนอ 9 พ.ย. 2569** *(ร่างของ PM · **[PM ยืนยันกับทีม]**)*
+
+| Increment | เป้าหมาย | FR | เสร็จเมื่อ | Issue | กำหนดเสร็จ |
+|---|---|---|---|---|---|
+| 1a | แยกไฟล์หน้าเว็บ (ปลดล็อกคนอื่น) | — | เปิดหน้าเดิมได้เหมือนเดิม · เทสต์เดิมผ่าน | [#46](https://github.com/yaroo393-png/SE-Project/issues/46) | 28 ต.ค. 2569 |
+| 1b | วงจรหลัก: เตือน → ยืนยัน → แจ้งผู้ดูแล | FR-03, FR-04, FR-05 | คลิกได้ครบบนหน้าเว็บ · test กฎการเตือนผ่าน | [#49](https://github.com/yaroo393-png/SE-Project/issues/49), [#50](https://github.com/yaroo393-png/SE-Project/issues/50) | 1 พ.ย. 2569 |
+| 2 | จับคู่ + ฟอร์มยาจากฉลาก | FR-01, FR-02 | คลิกได้ครบ · test ทั้งหมดผ่าน | [#47](https://github.com/yaroo393-png/SE-Project/issues/47), [#48](https://github.com/yaroo393-png/SE-Project/issues/48), [#51](https://github.com/yaroo393-png/SE-Project/issues/51) | 4 พ.ย. 2569 |
+| 3 | ทดสอบกับผู้ใช้ + วัด NFR | NFR-02, NFR-03, NFR-08 | ผลทดสอบจริงในรายงาน | [#50](https://github.com/yaroo393-png/SE-Project/issues/50), [#51](https://github.com/yaroo393-png/SE-Project/issues/51) | 6 พ.ย. 2569 |
+| 4 | ส่งงาน | — | Final Report · AI-Use Statement · Demo Slides · README | [#51](https://github.com/yaroo393-png/SE-Project/issues/51) | 8 พ.ย. 2569 (ส่งและนำเสนอ 9 พ.ย.) |
+
 ---
 
 ## 9. บทบาทสมาชิก
