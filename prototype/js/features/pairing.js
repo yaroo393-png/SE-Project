@@ -1,4 +1,4 @@
-/* global state, storage, render, caregiverMode, heading, toast, readMedicines, readTodayDoses, localDateKey */
+/* global MedMind, state, render, caregiverMode, heading, toast, readMedicines, readTodayDoses, localDateKey */
 /* exported pairingPage */
 /*
  * pairing.js — จับคู่ด้วยรหัสเชิญและ QR ในเบราว์เซอร์ (Issue #46)
@@ -117,6 +117,26 @@ let flowQrStream = null;
 let flowQrFrame = 0;
 let flowCountdown = 0;
 
+function pairingStore() {
+  return MedMind.store;
+}
+
+function pairingLogic() {
+  return MedMind.pairing;
+}
+
+function flowRandomValue() {
+  const values = new Uint32Array(1);
+
+  if (window.crypto && window.crypto.getRandomValues) {
+    window.crypto.getRandomValues(values);
+    return values[0];
+  }
+
+  return Math.floor(Math.random() * 0xffffffff);
+}
+
+
 function flowText(key) {
   const lang =
     typeof state !== 'undefined' && state.lang === 'en' ? 'en' : 'th';
@@ -124,7 +144,9 @@ function flowText(key) {
 }
 
 function flowReadInvite() {
-  let invite = storage.readJSON('medmind-pairing', null);
+  const store = pairingStore();
+  let invite = store.readJSON(store.KEYS.pairing, null);
+
   if (
     !invite ||
     typeof invite !== 'object' ||
@@ -133,26 +155,25 @@ function flowReadInvite() {
     invite = flowCreateInvite();
     flowSaveInvite(invite);
   }
+
   return invite;
 }
 
+
 function flowSaveInvite(invite) {
-  storage.write('medmind-pairing', JSON.stringify(invite));
+  const store = pairingStore();
+  return store.writeJSON(store.KEYS.pairing, invite);
 }
 
+
 function flowCreateInvite() {
-  const values = new Uint32Array(1);
-  if (window.crypto && window.crypto.getRandomValues)
-    window.crypto.getRandomValues(values);
-  else values[0] = Math.floor(Math.random() * 0xffffffff);
-  return {
-    code: String(values[0] % 1000000).padStart(6, '0'),
-    expiresAt: Date.now() + 10 * 60 * 1000,
-    consent: false,
-    used: false,
-    paired: false
-  };
+  return pairingLogic().createInvite({
+    now: Date.now(),
+    random: flowRandomValue()
+  });
 }
+
+
 
 function flowNewInvite() {
   const old = flowReadInvite();
@@ -338,38 +359,68 @@ function flowPairFeedback(message) {
 function flowTryPair() {
   const input = document.getElementById('invite-code-entry');
   const entered = input ? input.value.trim() : '';
-  const invite = flowReadInvite();
-  if (!/^\d{6}$/.test(entered))
-    return flowPairFeedback(flowText('codeRequired'));
-  if (invite.paired) return flowPairFeedback(flowText('alreadyPaired'));
-  if (invite.used) return flowPairFeedback(flowText('codeUsed'));
-  if (Date.now() >= Number(invite.expiresAt || 0))
-    return flowPairFeedback(flowText('codeExpired'));
-  if (!invite.consent) return flowPairFeedback(flowText('consentRequired'));
-  if (entered !== invite.code) return flowPairFeedback(flowText('codeInvalid'));
-  invite.used = true;
-  invite.paired = true;
-  flowSaveInvite(invite);
+
+  if (!/^\d{6}$/.test(entered)) {
+    flowPairFeedback(flowText('codeRequired'));
+    return;
+  }
+
+  const result = pairingLogic().acceptInvite({
+    store: pairingStore(),
+    now: Date.now(),
+    code: entered
+  });
+
+  if (!result.ok) {
+    const messages = {
+      invalid_code: flowText('codeInvalid'),
+      expired_code: flowText('codeExpired'),
+      code_used: flowText('codeUsed'),
+      consent_required: flowText('consentRequired'),
+      already_paired: flowText('alreadyPaired'),
+      invite_missing: flowText('codeInvalid'),
+      storage_unavailable: 'ไม่สามารถบันทึกข้อมูลได้',
+      store_required: 'ไม่สามารถเชื่อมต่อที่เก็บข้อมูลได้'
+    };
+
+    flowPairFeedback(messages[result.reason] || flowText('codeInvalid'));
+    return;
+  }
+
   state.medicines = readMedicines();
   state.taken = readTodayDoses();
   state.takenDate = localDateKey();
   state.page = 'caregiverHome';
   render();
-  if (typeof toast === 'function') toast(flowText('connected'));
+
+  if (typeof toast === 'function') {
+    toast(flowText('connected'));
+  }
 }
+
 
 function flowUnpair() {
   if (!window.confirm(flowText('unpairConfirm'))) return;
-  storage.write('medmind-pairing', '');
-  storage.write('medmind-taken', '[]');
-  storage.write('medmind-meds', '[]');
-  const invite = flowCreateInvite();
-  flowSaveInvite(invite);
+
+  const result = pairingLogic().disconnect({
+    store: pairingStore(),
+    confirmed: true,
+    now: Date.now(),
+    random: flowRandomValue()
+  });
+
+  if (!result.ok) {
+    flowPairFeedback('ไม่สามารถยกเลิกการเชื่อมต่อได้');
+    return;
+  }
+
   state.taken = [];
   state.medicines = [];
-  state.page = caregiverMode ? 'pairing' : 'pairing';
+  state.page = 'pairing';
   render();
 }
+
+
 
 function flowFormatRemaining() {
   const invite = flowReadInvite();
@@ -466,14 +517,23 @@ function flowSetup() {
   );
   document.addEventListener('change', (event) => {
     if (event.target?.id === 'senior-consent') {
-      const invite = flowReadInvite();
-      invite.consent = event.target.checked;
-      flowSaveInvite(invite);
-    }
+  const result = pairingLogic().setConsent({
+    store: pairingStore(),
+    consent: event.target.checked
   });
-  window.addEventListener('storage', (event) => {
-    if (event.key === 'medmind-pairing') render();
+
+  if (!result.ok) {
+    flowPairFeedback('ไม่สามารถบันทึกการยินยอมได้');
+  }
+}
+
   });
+ window.addEventListener('storage', (event) => {
+  if (event.key === pairingStore().KEYS.pairing) {
+    render();
+  }
+});
+
   if (!flowCountdown)
     flowCountdown = window.setInterval(flowFormatRemaining, 1000);
 }
